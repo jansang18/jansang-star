@@ -39,11 +39,10 @@ export default function App() {
       const date = Temporal.Now.plainDateISO(profile.timeZone).toString();
       const transits = await calculateDailyTransits(chart, profile, date);
       const fortune = generateDailyFortune(chart, transits, date);
-      const current = Temporal.PlainDate.from(date);
       const monthSamples = await buildPeriod(chart, profile, monthSampleDates(date));
       const yearSamples = await buildPeriod(chart, profile, yearSampleDates(date));
-      const monthFortune = summarizePeriodFortune('month', `${current.year}년 ${current.month}월`, monthSamples);
-      const yearFortune = summarizePeriodFortune('year', `${current.year}년`, yearSamples);
+      const monthFortune = summarizePeriodFortune('month', date, monthSamples);
+      const yearFortune = summarizePeriodFortune('year', date, yearSamples);
       setResult({ profile, chart, transits, fortune, monthFortune, yearFortune });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (caught) {
