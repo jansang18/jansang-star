@@ -34,11 +34,15 @@ summary,
   outline-offset: 3px;
 }
 
-button {
+:where(button, summary, select, input[type='checkbox'], [role='option']) {
   transition: transform 100ms ease-out, background-color 160ms ease, color 160ms ease;
 }
 
-button:active {
+button:active,
+summary:active,
+select:active,
+input[type='checkbox']:active,
+[role='option']:active {
   transform: scale(.98);
 }
 
@@ -342,6 +346,14 @@ button:active {
     scroll-behavior: auto !important;
     animation: none !important;
     transition-duration: .01ms !important;
+  }
+
+  button:active,
+  summary:active,
+  select:active,
+  input[type='checkbox']:active,
+  [role='option']:active {
+    transform: none;
   }
 }
 

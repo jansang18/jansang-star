@@ -91,6 +91,12 @@
   letter-spacing: .08em;
 }
 
+.profile-name,
+.hero-summary h1 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .hero-summary h1 {
   margin: 10px 0 14px;
   font-family: var(--font-display);
@@ -272,7 +278,7 @@
 
 .big-three-card p {
   margin: 0;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .cosmic-section {
@@ -468,11 +474,13 @@
 .aspect-symbol.sextile,
 .aspect-symbol.trine {
   color: var(--cobalt);
+  background: var(--ink-inverse);
 }
 
 .aspect-symbol.square,
 .aspect-symbol.opposition {
   color: var(--copper);
+  background: var(--ink-inverse);
 }
 
 .aspect-list b {
@@ -487,7 +495,7 @@
 
 .aspect-list p {
   margin: 4px 0 0;
-  line-height: 1.55;
+  line-height: 1.75;
 }
 
 .fortune-grid {
@@ -709,6 +717,11 @@
   stroke: var(--brass-soft);
 }
 
+.period-node-ring-backdrop {
+  fill: none;
+  stroke: var(--ink-inverse);
+}
+
 .period-node.strongest .period-node-ring {
   stroke: var(--cobalt);
   fill: none;
@@ -716,6 +729,7 @@
 
 .period-node.strongest .period-node-icon {
   fill: var(--cobalt);
+  stroke: var(--ink-inverse);
 }
 
 .period-node.softest .period-node-ring {
@@ -725,6 +739,7 @@
 
 .period-node.softest .period-node-icon {
   fill: var(--copper);
+  stroke: var(--ink-inverse);
 }
 
 .period-node-score,
@@ -734,17 +749,20 @@
 }
 
 .period-node-score {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 850;
 }
 
 .period-node-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 650;
 }
 
 .period-node-icon {
-  font-size: 14px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+  stroke-width: 3px;
+  font-size: 16px;
   font-weight: 850;
 }
 
@@ -783,7 +801,7 @@
 
 .period-windows b {
   font-size: .84rem;
-  line-height: 1.65;
+  line-height: 1.75;
 }
 
 .period-detail-group {
@@ -800,7 +818,7 @@
 .reading-notices p {
   margin: 0;
   color: var(--section-ink);
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .reading-sections {
@@ -932,7 +950,7 @@
 
 .result-footer {
   padding: 34px 0 72px;
-  color: var(--muted);
+  color: var(--ink);
   font-size: .76rem;
   text-align: center;
 }
@@ -940,7 +958,7 @@
 .legal-notice {
   max-width: 68ch;
   margin: auto;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .legal-notice p {
@@ -948,7 +966,8 @@
 }
 
 .legal-notice a {
-  color: var(--copper);
+  color: var(--ink);
+  text-decoration-color: var(--copper);
   text-underline-offset: 3px;
 }
 
@@ -1108,5 +1127,15 @@
   .reading-section:nth-child(even) {
     --section-muted: var(--ink-inverse);
     background: var(--obsidian);
+  }
+
+  .period-node-ring-backdrop {
+    stroke: var(--ink-inverse);
+    stroke-width: 7px;
+  }
+
+  .period-node-icon {
+    stroke: var(--ink-inverse);
+    stroke-width: 4px;
   }
 }

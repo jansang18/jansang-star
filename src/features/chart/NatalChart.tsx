@@ -55,11 +55,17 @@ export function NatalChart({ chart }: Props) {
         const width = 0.75 + (1 - aspect.orb / aspect.maxOrb) * 1;
         return <line key={`glow-${aspect.from}-${aspect.to}-${index}`} x1={180 + from.x} y1={180 + from.y} x2={180 + to.x} y2={180 + to.y} stroke={ASPECT_COLORS[aspect.type]} strokeWidth={width + 3} opacity=".28" filter="url(#lineGlow)" />;
       })}</g>
+      <g className="aspect-underlays" aria-hidden="true">{aspects.map((aspect, index) => {
+        const from = positions[aspect.from]; const to = positions[aspect.to];
+        const tension = aspect.type === 'square' || aspect.type === 'opposition';
+        const width = 0.75 + (1 - aspect.orb / aspect.maxOrb) * 1;
+        return <line className="aspect-underlay" key={`underlay-${aspect.from}-${aspect.to}-${index}`} x1={180 + from.x} y1={180 + from.y} x2={180 + to.x} y2={180 + to.y} strokeWidth={width + 2} strokeDasharray={tension ? '4 3' : undefined} />;
+      })}</g>
       <g className="aspect-lines">{aspects.map((aspect, index) => {
         const from = positions[aspect.from]; const to = positions[aspect.to];
         const tension = aspect.type === 'square' || aspect.type === 'opposition';
         const width = 0.75 + (1 - aspect.orb / aspect.maxOrb) * 1;
-        return <line key={`${aspect.from}-${aspect.to}-${index}`} x1={180 + from.x} y1={180 + from.y} x2={180 + to.x} y2={180 + to.y} stroke={ASPECT_COLORS[aspect.type]} strokeWidth={width} strokeDasharray={tension ? '4 3' : undefined} opacity={Math.max(.55, .94 - aspect.orb / 15)} />;
+        return <line className="aspect-line-data" key={`${aspect.from}-${aspect.to}-${index}`} x1={180 + from.x} y1={180 + from.y} x2={180 + to.x} y2={180 + to.y} stroke={ASPECT_COLORS[aspect.type]} strokeWidth={width} strokeDasharray={tension ? '4 3' : undefined} opacity="1" />;
       })}</g>
       {planets.map((planet) => {
         const point = positions[planet.id];

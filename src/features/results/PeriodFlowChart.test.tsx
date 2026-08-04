@@ -32,9 +32,11 @@ describe('PeriodFlowChart', () => {
     const softest = container.querySelector('.period-node.softest');
 
     expect(strongest).toHaveClass('flow');
+    expect(strongest?.querySelector('.period-node-ring-backdrop')).toHaveAttribute('r', '10');
     expect(strongest?.querySelector('.period-node-ring')).toHaveAttribute('r', '10');
     expect(strongest?.querySelector('.period-node-icon')).toHaveTextContent('✦');
     expect(softest).toHaveClass('steady');
+    expect(softest?.querySelector('.period-node-ring-backdrop')).toHaveAttribute('r', '10');
     expect(softest?.querySelector('.period-node-ring')).toHaveAttribute('r', '10');
     expect(softest?.querySelector('.period-node-icon')).toHaveTextContent('!');
     expect(strongest?.querySelector('title')).toHaveTextContent('August 22, 2026 · 82');

@@ -175,6 +175,11 @@
   background: var(--brass-soft);
 }
 
+.city-options li.active span,
+.city-options li:hover span {
+  color: var(--ink);
+}
+
 .city-options span {
   color: var(--muted);
   font-size: .75rem;
@@ -215,7 +220,7 @@
   color: var(--ink);
   background: rgba(210, 194, 159, .18);
   font-size: .78rem;
-  line-height: 1.65;
+  line-height: 1.75;
 }
 
 .calculate-button {

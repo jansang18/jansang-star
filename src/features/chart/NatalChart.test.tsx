@@ -23,4 +23,18 @@ describe('NatalChart', () => {
     expect(screen.getByText('Aries 0°00′')).toBeInTheDocument();
     expect(screen.getByLabelText('Chart line legend')).toHaveTextContent('ConjunctionHarmonyTensionASC·MC');
   });
+
+  it('backs every sharp semantic aspect line with an unblurred contrast under-stroke', () => {
+    const { container } = renderWithI18n(<NatalChart chart={chart} />);
+    const underlays = container.querySelectorAll('.aspect-underlays .aspect-underlay');
+    const dataLines = container.querySelectorAll('.aspect-lines .aspect-line-data');
+
+    expect(dataLines.length).toBeGreaterThan(0);
+    expect(underlays).toHaveLength(dataLines.length);
+    underlays.forEach((line) => expect(line).not.toHaveAttribute('filter'));
+    dataLines.forEach((line) => {
+      expect(line).not.toHaveAttribute('filter');
+      expect(line).toHaveAttribute('opacity', '1');
+    });
+  });
 });

@@ -48,16 +48,29 @@ export function PeriodFlowChart({ points, label }: Props) {
         .join(' ');
       return <g key={source.date} className={classes}>
         <title>{source.label} · {source.score}</title>
-        {(strongest || softest) && <circle
-          className="period-node-ring"
-          cx={point.x}
-          cy={point.y}
-          r="10"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          vectorEffect="non-scaling-stroke"
-        />}
+        {(strongest || softest) && <>
+          <circle
+            className="period-node-ring-backdrop"
+            cx={point.x}
+            cy={point.y}
+            r="10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="5"
+            vectorEffect="non-scaling-stroke"
+            aria-hidden="true"
+          />
+          <circle
+            className="period-node-ring"
+            cx={point.x}
+            cy={point.y}
+            r="10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            vectorEffect="non-scaling-stroke"
+          />
+        </>}
         <circle className="period-node-dot" cx={point.x} cy={point.y} r="5" fill="currentColor" />
         {(strongest || softest) && <text
           className="period-node-icon"
