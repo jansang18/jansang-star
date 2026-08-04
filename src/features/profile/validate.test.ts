@@ -8,6 +8,13 @@ const validProfile: BirthProfile = {
 };
 
 describe('validateBirthProfile', () => {
+  it('returns locale-neutral validation codes', () => {
+    const errors = validateBirthProfile({ ...validProfile, displayName: '', date: '2999-01-01', cityId: '' });
+    expect(errors.displayName).toBe('displayNameRequired');
+    expect(errors.date).toBe('dateFuture');
+    expect(errors.cityId).toBe('cityRequired');
+  });
+
   it('rejects a future birth date and missing city selection', () => {
     const errors = validateBirthProfile({ ...validProfile, date: '2999-01-01', cityId: '' });
     expect(errors.date).toBeDefined();

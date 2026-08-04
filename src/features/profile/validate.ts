@@ -1,29 +1,41 @@
 import { Temporal } from '@js-temporal/polyfill';
-import type { BirthProfile, ValidationErrors } from './types';
+import type { TranslationKey } from '../../i18n/translations';
+import type { BirthProfile, ValidationErrorCode, ValidationErrors } from './types';
+
+export const VALIDATION_TRANSLATION_KEYS: Record<ValidationErrorCode, TranslationKey> = {
+  displayNameRequired: 'validation.displayNameRequired',
+  dateInvalid: 'validation.dateInvalid',
+  dateFuture: 'validation.dateFuture',
+  timeInvalid: 'validation.timeInvalid',
+  cityRequired: 'validation.cityRequired',
+  coordinatesInvalid: 'validation.coordinatesInvalid',
+  timeZoneRequired: 'validation.timeZoneRequired',
+  timeZoneInvalid: 'validation.timeZoneInvalid',
+};
 
 export function validateBirthProfile(profile: BirthProfile): ValidationErrors {
   const errors: ValidationErrors = {};
-  if (!profile.displayName.trim()) errors.displayName = '이름이나 별칭을 입력해 주세요.';
+  if (!profile.displayName.trim()) errors.displayName = 'displayNameRequired';
   try {
     const birthDate = Temporal.PlainDate.from(profile.date);
     if (Temporal.PlainDate.compare(birthDate, Temporal.Now.plainDateISO(profile.timeZone || 'UTC')) > 0) {
-      errors.date = '미래 날짜는 입력할 수 없어요.';
+      errors.date = 'dateFuture';
     }
   } catch {
-    errors.date = '올바른 생년월일을 입력해 주세요.';
+    errors.date = 'dateInvalid';
   }
   if (profile.timeKnown && !/^([01]\d|2[0-3]):[0-5]\d$/.test(profile.time)) {
-    errors.time = '정확한 출생시간을 입력해 주세요.';
+    errors.time = 'timeInvalid';
   }
-  if (!profile.cityId) errors.cityId = '출생지역을 선택해 주세요.';
+  if (!profile.cityId) errors.cityId = 'cityRequired';
   if (profile.latitude < -90 || profile.latitude > 90 || profile.longitude < -180 || profile.longitude > 180) {
-    errors.coordinates = '위도와 경도 범위를 확인해 주세요.';
+    errors.coordinates = 'coordinatesInvalid';
   }
   try {
     if (profile.timeZone) new Intl.DateTimeFormat('ko', { timeZone: profile.timeZone }).format();
-    else errors.timeZone = '시간대를 선택해 주세요.';
+    else errors.timeZone = 'timeZoneRequired';
   } catch {
-    errors.timeZone = '올바른 IANA 시간대를 입력해 주세요.';
+    errors.timeZone = 'timeZoneInvalid';
   }
   return errors;
 }
