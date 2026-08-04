@@ -15,8 +15,14 @@ export function CityCombobox({ selectedId, onSelect, error }: Props) {
   const options = searchCities(query).slice(0, 8);
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const previousLocaleRef = useRef(locale);
 
-  useEffect(() => { if (selected) setQuery(cityName(selected, locale)); }, [locale, selected]);
+  useEffect(() => {
+    if (selected && query === cityName(selected, previousLocaleRef.current)) {
+      setQuery(cityName(selected, locale));
+    }
+    previousLocaleRef.current = locale;
+  }, [locale, query, selected]);
   useEffect(() => {
     const close = (event: PointerEvent) => { if (!rootRef.current?.contains(event.target as Node)) setOpen(false); };
     document.addEventListener('pointerdown', close);

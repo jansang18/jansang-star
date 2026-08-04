@@ -53,4 +53,16 @@ describe('BirthForm', () => {
     await user.type(city, 'Seoul');
     expect(screen.getByRole('option', { name: /Seoul/ })).toBeInTheDocument();
   });
+
+  it('preserves edited city search text while switching locale', async () => {
+    const user = userEvent.setup();
+    render(<I18nProvider initialLocale="ko"><LocaleProbeButton /><BirthForm onSubmit={() => {}} /></I18nProvider>);
+    const city = screen.getByRole('combobox', { name: '출생지역' });
+    await user.type(city, '서울');
+    await user.click(screen.getByRole('option', { name: /서울/ }));
+    await user.clear(city);
+    await user.type(city, 'Tokyo');
+    await user.click(screen.getByRole('button', { name: 'English' }));
+    expect(screen.getByRole('combobox', { name: 'Birth city' })).toHaveValue('Tokyo');
+  });
 });
