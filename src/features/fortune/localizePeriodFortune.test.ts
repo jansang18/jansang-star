@@ -51,8 +51,30 @@ describe('localizePeriodFortune', () => {
     expect(en.label).toBe('August 2026');
     expect(ko.timeline[0].label).toBe('2026년 8월 1일');
     expect(en.timeline[0].label).toBe('August 1, 2026');
+    expect(ko.timeline.map((point) => point.tickLabel)).toEqual(ko.timeline.map((point) => point.label));
+    expect(en.timeline.map((point) => point.tickLabel)).toEqual(en.timeline.map((point) => point.label));
     expect(ko.segments.map((segment) => segment.label)).toEqual(ko.timeline.map((point) => point.label));
     expect(en.segments.map((segment) => segment.label)).toEqual(en.timeline.map((point) => point.label));
+  });
+
+  it('keeps full yearly dates while adding exact collision-safe tick labels', () => {
+    const ko = localizePeriodFortune(yearModel, 'ko');
+    const en = localizePeriodFortune(yearModel, 'en');
+
+    expect(ko.timeline.map((point) => point.tickLabel)).toEqual([
+      '1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월',
+    ]);
+    expect(en.timeline.map((point) => point.tickLabel)).toEqual([
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ]);
+    expect(ko.timeline.map((point) => point.label)).toEqual(
+      Array.from({ length: 12 }, (_, index) => `2026년 ${index + 1}월 15일`),
+    );
+    expect(en.timeline.map((point) => point.label)).toEqual([
+      'January 15, 2026', 'February 15, 2026', 'March 15, 2026', 'April 15, 2026',
+      'May 15, 2026', 'June 15, 2026', 'July 15, 2026', 'August 15, 2026',
+      'September 15, 2026', 'October 15, 2026', 'November 15, 2026', 'December 15, 2026',
+    ]);
   });
 
   it('authors each language separately while preserving score and date evidence', () => {

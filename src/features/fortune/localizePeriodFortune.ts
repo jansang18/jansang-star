@@ -1,5 +1,5 @@
 import { categoryName } from '../../i18n/astrologyTerms';
-import { formatLocalDate, formatPeriodLabel } from '../../i18n/formatters';
+import { formatLocalDate, formatPeriodLabel, formatPeriodTickLabel } from '../../i18n/formatters';
 import { formatLocaleNumber } from '../../i18n/numberFormat';
 import type { Locale } from '../../i18n/types';
 import { safeAuthoredCopy } from '../../i18n/authoredCopy';
@@ -9,7 +9,7 @@ import { PERIOD_COPY_KO, type PeriodCopy } from './periodCopy.ko';
 import type { PeriodFortune, PeriodTone } from './periodFortune';
 
 export type LocalizedPeriodCategory = { label: string; score: number; tone: PeriodTone };
-export type LocalizedPeriodPoint = { date: string; label: string; score: number; tone: PeriodTone };
+export type LocalizedPeriodPoint = { date: string; label: string; tickLabel: string; score: number; tone: PeriodTone };
 export type LocalizedPeriodDetail = {
   id: string;
   label: string;
@@ -77,6 +77,7 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
   const timeline: LocalizedPeriodPoint[] = model.timeline.map((point) => ({
     ...point,
     label: formatLocalDate(point.date, locale),
+    tickLabel: formatPeriodTickLabel(model.period, point.date, locale),
   }));
   const strongestPoint = timeline[model.strongestIndex];
   const softestPoint = timeline[model.softestIndex];

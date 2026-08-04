@@ -43,4 +43,41 @@ describe('buildPeriodFlowGeometry', () => {
       domain: { min: 40, max: 100 },
     });
   });
+
+  it('keeps conservative yearly tick bounds disjoint at desktop and mobile chart widths', () => {
+    const geometry = buildPeriodFlowGeometry(
+      [42, 51, 59, 64, 70, 75, 81, 77, 68, 62, 56, 49],
+      760,
+      260,
+      36,
+    );
+    const ticks = {
+      ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+      en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    };
+    // Chromium measured every authored tick below 30 viewBox units at the production 14px font.
+    // A 42-unit envelope leaves extra font-substitution headroom while coupling this check to chart geometry.
+    const conservativeTickWidth = (label: string) => Math.max(42, [...label].reduce((width, character) => (
+      width + (character === ' ' ? 5 : /[A-Za-z0-9]/.test(character) ? 10 : 14)
+    ), 0));
+
+    for (const renderedWidth of [660, 1034]) {
+      const scale = renderedWidth / 760;
+      for (const locale of ['ko', 'en'] as const) {
+        const bounds = geometry.points.map((point, index) => {
+          const label = ticks[locale][index];
+          expect(label).toBeTruthy();
+          const center = point.x * scale;
+          const width = conservativeTickWidth(label) * scale;
+          return { left: center - width / 2, right: center + width / 2 };
+        });
+        const adjacentGaps = bounds.slice(0, -1).map((bound, index) => bounds[index + 1].left - bound.right);
+
+        expect(adjacentGaps.filter((gap) => gap < 0), `${locale} at ${renderedWidth}px`).toEqual([]);
+        expect(Math.min(...adjacentGaps), `${locale} at ${renderedWidth}px`).toBeGreaterThan(4);
+        expect(bounds[0].left).toBeGreaterThanOrEqual(0);
+        expect(bounds.at(-1)?.right).toBeLessThanOrEqual(renderedWidth);
+      }
+    }
+  });
 });

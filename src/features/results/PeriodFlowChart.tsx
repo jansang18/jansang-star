@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { buildPeriodFlowGeometry } from '../chart/periodFlowGeometry';
 import type { LocalizedPeriodPoint } from '../fortune/localizePeriodFortune';
 
@@ -13,6 +14,7 @@ function extremeIndex(points: LocalizedPeriodPoint[], direction: 'strongest' | '
 }
 
 export function PeriodFlowChart({ points, label }: Props) {
+  const descriptionId = useId();
   const width = 760;
   const height = 260;
   const padding = 36;
@@ -25,9 +27,11 @@ export function PeriodFlowChart({ points, label }: Props) {
     viewBox={`0 0 ${width} ${height}`}
     role="img"
     aria-label={label}
+    aria-describedby={descriptionId}
     focusable="false"
   >
     <title>{label}</title>
+    <desc id={descriptionId}>{points.map((point) => `${point.label} · ${point.score}`).join('; ')}</desc>
     <path className="period-area" d={geometry.areaPath} fill="currentColor" fillOpacity="0.08" />
     <path
       className="period-line"
@@ -80,7 +84,7 @@ export function PeriodFlowChart({ points, label }: Props) {
           aria-hidden="true"
         >{strongest && softest ? '✦!' : strongest ? '✦' : '!'}</text>}
         <text className="period-node-score" x={point.x} y={point.y + 26} textAnchor="middle">{source.score}</text>
-        <text className="period-node-label" x={point.x} y={height - 8} textAnchor="middle">{source.label}</text>
+        <text className="period-node-label" x={point.x} y={height - 8} textAnchor="middle">{source.tickLabel}</text>
       </g>;
     })}
   </svg></div>;

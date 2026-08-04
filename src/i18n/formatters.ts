@@ -29,3 +29,12 @@ export function formatPeriodLabel(period: Period, isoDate: string, locale: Local
     timeZone: 'UTC', year: 'numeric', ...(period === 'month' ? { month: 'long' as const } : {}),
   }).format(dateForFormatting(isoDate));
 }
+
+export function formatPeriodTickLabel(period: Period, isoDate: string, locale: Locale): string {
+  if (period === 'month') return formatLocalDate(isoDate, locale);
+
+  return new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', {
+    timeZone: 'UTC',
+    month: locale === 'ko' ? 'numeric' : 'short',
+  }).format(dateForFormatting(isoDate));
+}
