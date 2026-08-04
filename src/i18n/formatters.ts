@@ -1,4 +1,5 @@
 import { zodiacNameByIndex } from './astrologyTerms';
+import { formatLocaleNumber } from './numberFormat';
 import type { Locale } from './types';
 
 type Period = 'month' | 'year';
@@ -13,8 +14,8 @@ export function formatZodiacDegree(longitude: number, locale: Locale): string {
   const signIndex = Math.floor(normalizedMinutes / (30 * 60));
   const signMinutes = normalizedMinutes % (30 * 60);
   const degree = Math.floor(signMinutes / 60);
-  const minute = String(signMinutes % 60).padStart(2, '0');
-  return `${zodiacNameByIndex(signIndex, locale)} ${degree}°${minute}′`;
+  const minute = formatLocaleNumber(signMinutes % 60, locale, 2);
+  return `${zodiacNameByIndex(signIndex, locale)} ${formatLocaleNumber(degree, locale)}°${minute}′`;
 }
 
 export function formatLocalDate(isoDate: string, locale: Locale): string {

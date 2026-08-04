@@ -1,6 +1,7 @@
 import type { PlanetId, ZodiacSign } from '../features/astrology/types';
 import type { AspectType } from '../features/fortune/aspects';
 import type { FortuneCategory } from '../features/fortune/rules';
+import { formatLocaleNumber } from './numberFormat';
 import type { Locale } from './types';
 
 type PointId = 'sun' | 'moon' | 'ascendant';
@@ -46,8 +47,8 @@ export function pointName(point: PointId, locale: Locale): string { return TERMS
 export function zodiacName(sign: ZodiacSign, locale: Locale): string { return TERMS[locale].zodiac[sign]; }
 export function zodiacNameByIndex(index: number, locale: Locale): string { return zodiacName(ZODIAC_BY_INDEX[((index % 12) + 12) % 12], locale); }
 export function aspectName(aspect: AspectType, locale: Locale): string { return TERMS[locale].aspects[aspect]; }
-export function houseName(house: number, locale: Locale): string { return TERMS[locale].houses[house - 1] ?? String(house); }
-export function houseLabel(house: number, locale: Locale): string { return locale === 'ko' ? `${house}하우스` : `House ${house}`; }
+export function houseName(house: number, locale: Locale): string { return TERMS[locale].houses[house - 1] ?? formatLocaleNumber(house, locale); }
+export function houseLabel(house: number, locale: Locale): string { return locale === 'ko' ? `${formatLocaleNumber(house, locale)}하우스` : `House ${formatLocaleNumber(house, locale)}`; }
 export function categoryName(category: FortuneCategory, locale: Locale): string { return TERMS[locale].categories[category]; }
 export function motionName(motion: Motion, locale: Locale): string { return TERMS[locale].motion[motion]; }
 export function chartText(key: ChartTextKey, locale: Locale): string { return TERMS[locale].chart[key]; }
