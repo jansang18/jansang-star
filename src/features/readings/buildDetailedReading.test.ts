@@ -163,9 +163,6 @@ describe('buildDetailedReading', () => {
       timeKnown: false,
       ascendant: undefined,
       houses: [],
-      planets: Object.fromEntries(
-        Object.entries(chart.planets).map(([id, value]) => [id, { ...value, house: undefined }]),
-      ) as Record<PlanetId, PlanetPosition>,
     };
 
     const report = buildDetailedReading(unknownChart, transits);
@@ -177,6 +174,8 @@ describe('buildDetailedReading', () => {
     expect(report.planets.every((block) => block.sentences[2].key === 'planet.houseUnknown')).toBe(true);
     expect(report.bigThree.flatMap((block) => block.evidence).every((item) => item.kind !== 'placement' || item.house === undefined)).toBe(true);
     expect(report.planets.flatMap((block) => block.evidence).every((item) => item.kind !== 'placement' || item.house === undefined)).toBe(true);
+    expect(report.bigThree.flatMap((block) => block.sentences).every((sentence) => !Object.hasOwn(sentence.params, 'house'))).toBe(true);
+    expect(report.planets.flatMap((block) => block.sentences).every((sentence) => !Object.hasOwn(sentence.params, 'house'))).toBe(true);
     expect(report.houses).toHaveLength(0);
     expect(report.unavailable).toEqual(['ascendant', 'houses']);
   });
