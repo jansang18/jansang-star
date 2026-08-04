@@ -7,11 +7,21 @@ import { calculateNatalChart } from './features/astrology/swissEphemeris';
 import type { NatalChartData } from './features/astrology/types';
 import { calculateDailyTransits, type TransitData } from './features/fortune/transits';
 import { generateDailyFortune, type DailyFortune } from './features/fortune/generateFortune';
+import { monthSampleDates, summarizePeriodFortune, yearSampleDates, type PeriodFortune } from './features/fortune/periodFortune';
 import { ResultsPage } from './features/results/ResultsPage';
 import { AppError } from './components/AppError';
 import { EphemerisLoader } from './components/EphemerisLoader';
 
-type ResultState = { profile: BirthProfile; chart: NatalChartData; transits: TransitData; fortune: DailyFortune };
+type ResultState = { profile: BirthProfile; chart: NatalChartData; transits: TransitData; fortune: DailyFortune; monthFortune: PeriodFortune; yearFortune: PeriodFortune };
+
+async function buildPeriod(chart: NatalChartData, profile: BirthProfile, dates: string[]) {
+  const samples: DailyFortune[] = [];
+  for (const sampleDate of dates) {
+    const sampleTransits = await calculateDailyTransits(chart, profile, sampleDate);
+    samples.push(generateDailyFortune(chart, sampleTransits, sampleDate));
+  }
+  return samples;
+}
 
 export default function App() {
   const [started, setStarted] = useState(false);
@@ -29,7 +39,12 @@ export default function App() {
       const date = Temporal.Now.plainDateISO(profile.timeZone).toString();
       const transits = await calculateDailyTransits(chart, profile, date);
       const fortune = generateDailyFortune(chart, transits, date);
-      setResult({ profile, chart, transits, fortune });
+      const current = Temporal.PlainDate.from(date);
+      const monthSamples = await buildPeriod(chart, profile, monthSampleDates(date));
+      const yearSamples = await buildPeriod(chart, profile, yearSampleDates(date));
+      const monthFortune = summarizePeriodFortune('month', `${current.year}년 ${current.month}월`, monthSamples);
+      const yearFortune = summarizePeriodFortune('year', `${current.year}년`, yearSamples);
+      setResult({ profile, chart, transits, fortune, monthFortune, yearFortune });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '계산 중 예상하지 못한 문제가 발생했습니다.');
