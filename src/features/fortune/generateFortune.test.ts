@@ -17,6 +17,9 @@ describe('generateDailyFortune', () => {
       expect(category.score).toBeGreaterThanOrEqual(0);
       expect(category.score).toBeLessThanOrEqual(100);
       expect(category.summary.length).toBeGreaterThan(10);
+      expect(category.paragraphs.length).toBeGreaterThanOrEqual(3);
+      expect(category.paragraphs.join(' ').split(/[.!?]/).filter(Boolean).length).toBeGreaterThanOrEqual(3);
+      expect(category.signals.length).toBeGreaterThanOrEqual(1);
     });
   });
 });
