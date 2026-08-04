@@ -1,14 +1,15 @@
 :root {
-  --sky: #e8f7ff;
-  --lavender: #f1edff;
-  --peach: #fff3ed;
-  --violet: #6f62d4;
-  --violet-deep: #5147aa;
-  --ink: #252e49;
-  --muted: #70788d;
-  --glass: rgba(255, 255, 255, 0.68);
-  --line: rgba(92, 82, 170, 0.13);
-  --shadow: 0 24px 72px rgba(65, 61, 130, 0.16);
+  --sky: #070914;
+  --lavender: #111126;
+  --peach: #171120;
+  --violet: #a99bff;
+  --violet-deep: #8171ed;
+  --ink: #f7f7ff;
+  --muted: #a7a9bd;
+  --glass: rgba(30, 31, 55, 0.62);
+  --line: rgba(204, 200, 255, 0.16);
+  --shadow: 0 32px 100px rgba(0, 0, 0, 0.42), inset 0 1px rgba(255,255,255,.08);
+  --content-rail: 1120px;
   font-family: Inter, Pretendard, "Noto Sans KR", system-ui, -apple-system, sans-serif;
   color: var(--ink);
   background: var(--sky);
