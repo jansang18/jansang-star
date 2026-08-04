@@ -22,7 +22,7 @@
 npm install
 npm test -- --run
 npm run build -- --mode pages
-npm run preview -- --host 127.0.0.1 --port 4173 --base /jansang-star/
+npm run preview -- --host 127.0.0.1 --port 4173
 ```
 
 미리보기는 `http://127.0.0.1:4173/jansang-star/`에서 확인합니다. Pages 모드 빌드는 공개 경로 `/jansang-star/`를 기준으로 `dist/`를 생성합니다.

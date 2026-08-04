@@ -77,6 +77,18 @@
   opacity: 1;
 }
 
+.planet-longitude-guide {
+  stroke: var(--brass-soft);
+  stroke-width: .9;
+  stroke-dasharray: 2 2;
+  stroke-linecap: round;
+  opacity: .72;
+}
+
+.planet-longitude-anchor {
+  fill: var(--brass-soft);
+}
+
 .planet-node-outer {
   fill: none;
   stroke: var(--brass-soft);
@@ -101,10 +113,20 @@
   text-anchor: middle;
 }
 
+.retrograde-badge {
+  fill: var(--obsidian);
+  stroke: var(--brass-soft);
+  stroke-width: 1.4;
+}
+
 .retrograde {
   fill: var(--ink-inverse);
+  stroke: var(--obsidian);
+  stroke-width: 2.5px;
+  paint-order: stroke fill;
   font-size: 14px;
   font-weight: 850;
+  text-anchor: middle;
 }
 
 .center-star {
@@ -237,7 +259,17 @@
   .zodiac-division,
   .house-line,
   .angle-line,
+  .planet-longitude-guide,
   .planet-node-outer {
+    stroke: var(--ink-inverse);
+  }
+
+  .planet-longitude-anchor {
+    fill: var(--ink-inverse);
+  }
+
+  .retrograde-badge {
+    fill: var(--obsidian);
     stroke: var(--ink-inverse);
   }
 

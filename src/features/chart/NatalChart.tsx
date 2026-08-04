@@ -4,7 +4,7 @@ import { natalAspects } from '../fortune/aspects';
 import { chartText, houseLabel, motionName, planetName } from '../../i18n/astrologyTerms';
 import { formatZodiacDegree } from '../../i18n/formatters';
 import { useI18n } from '../../i18n/I18nProvider';
-import { displayAngle, polarPoint } from './geometry';
+import { RETROGRADE_BADGE_RADIUS, displayAngle, layoutPlanetNodes, polarPoint } from './geometry';
 import './NatalChart.css';
 
 type Props = { chart: NatalChartData };
@@ -20,10 +20,12 @@ export function NatalChart({ chart }: Props) {
   const { locale } = useI18n();
   const asc = chart.ascendant ?? 0;
   const planets = Object.values(chart.planets);
-  const positions = Object.fromEntries(planets.map((planet, index) => {
-    const point = polarPoint(displayAngle(planet.longitude, asc), 109 - (index % 3) * 8);
-    return [planet.id, point];
-  }));
+  const planetLayouts = layoutPlanetNodes(planets.map(({ id, longitude, retrograde }) => ({
+    id,
+    longitude,
+    retrograde,
+  })), asc);
+  const layoutByPlanet = new Map(planetLayouts.map((layout) => [layout.id, layout]));
   const aspects = natalAspects(chart).slice(0, 18);
 
   return <div className="natal-chart-wrap">
@@ -50,33 +52,44 @@ export function NatalChart({ chart }: Props) {
         const number = polarPoint(displayAngle(cusp + 11, asc), 87);
         return <g key={`house-${index}`}><line x1="180" y1="180" x2={180 + edge.x} y2={180 + edge.y} className={index === 0 || index === 9 ? 'angle-line' : 'house-line'} /><text x={180 + number.x} y={183 + number.y} className="house-number">{index + 1}</text></g>;
       })}
+      <g className="planet-longitude-guides" aria-hidden="true">{planetLayouts.map((layout) => <g key={`guide-${layout.id}`}>
+        <line className="planet-longitude-guide" x1={180 + layout.leader.start.x} y1={180 + layout.leader.start.y} x2={180 + layout.leader.end.x} y2={180 + layout.leader.end.y} />
+        <circle className="planet-longitude-anchor" cx={180 + layout.anchor.x} cy={180 + layout.anchor.y} r="1.8" />
+      </g>)}</g>
       <g className="aspect-glows" aria-hidden="true">{aspects.map((aspect, index) => {
-        const from = positions[aspect.from]; const to = positions[aspect.to];
+        const from = layoutByPlanet.get(aspect.from)!.truePoint; const to = layoutByPlanet.get(aspect.to)!.truePoint;
         const width = 0.75 + (1 - aspect.orb / aspect.maxOrb) * 1;
         return <line key={`glow-${aspect.from}-${aspect.to}-${index}`} x1={180 + from.x} y1={180 + from.y} x2={180 + to.x} y2={180 + to.y} stroke={ASPECT_COLORS[aspect.type]} strokeWidth={width + 3} opacity=".28" filter="url(#lineGlow)" />;
       })}</g>
       <g className="aspect-underlays" aria-hidden="true">{aspects.map((aspect, index) => {
-        const from = positions[aspect.from]; const to = positions[aspect.to];
+        const from = layoutByPlanet.get(aspect.from)!.truePoint; const to = layoutByPlanet.get(aspect.to)!.truePoint;
         const tension = aspect.type === 'square' || aspect.type === 'opposition';
         const width = 0.75 + (1 - aspect.orb / aspect.maxOrb) * 1;
         return <line className="aspect-underlay" key={`underlay-${aspect.from}-${aspect.to}-${index}`} x1={180 + from.x} y1={180 + from.y} x2={180 + to.x} y2={180 + to.y} strokeWidth={width + 2} strokeDasharray={tension ? '4 3' : undefined} />;
       })}</g>
       <g className="aspect-lines">{aspects.map((aspect, index) => {
-        const from = positions[aspect.from]; const to = positions[aspect.to];
+        const from = layoutByPlanet.get(aspect.from)!.truePoint; const to = layoutByPlanet.get(aspect.to)!.truePoint;
         const tension = aspect.type === 'square' || aspect.type === 'opposition';
         const width = 0.75 + (1 - aspect.orb / aspect.maxOrb) * 1;
         return <line className="aspect-line-data" key={`${aspect.from}-${aspect.to}-${index}`} x1={180 + from.x} y1={180 + from.y} x2={180 + to.x} y2={180 + to.y} stroke={ASPECT_COLORS[aspect.type]} strokeWidth={width} strokeDasharray={tension ? '4 3' : undefined} opacity="1" />;
       })}</g>
       {planets.map((planet) => {
-        const point = positions[planet.id];
-        return <g key={planet.id} transform={`translate(${180 + point.x} ${180 + point.y})`}>
+        const point = layoutByPlanet.get(planet.id)!.node;
+        return <g key={planet.id} data-planet-id={planet.id} transform={`translate(${180 + point.x} ${180 + point.y})`}>
           <circle r="16" className="planet-node-outer" />
           <circle r="14" className="planet-node-core" />
           <line x1="-8" y1="-9" x2="8" y2="-9" className="planet-node-reflection" />
           <text y="5" className="planet-glyph">{planet.glyph}</text>
-          {planet.retrograde && <text x="10" y="-10" className="retrograde">R</text>}
         </g>;
       })}
+      {planetLayouts.filter(({ retrogradeMarker }) => retrogradeMarker).map((layout) => <g
+        key={`retrograde-${layout.id}`}
+        data-retrograde-for={layout.id}
+        transform={`translate(${180 + layout.retrogradeMarker!.x} ${180 + layout.retrogradeMarker!.y})`}
+      >
+        <circle r={RETROGRADE_BADGE_RADIUS} className="retrograde-badge" />
+        <text y="6.5" className="retrograde">R</text>
+      </g>)}
       <circle cx="180" cy="180" r="18" fill="#B79A62" opacity=".15" filter="url(#softGlow)" aria-hidden="true" />
       <text x="180" y="188" className="center-star">✦</text>
       {chart.ascendant !== undefined && <text x="20" y="184" className="angle-label">{chartText('ascendantAbbreviation', locale)}</text>}

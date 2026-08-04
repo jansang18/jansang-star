@@ -79,3 +79,10 @@ it('guards accessible contrast, metadata sizing, copy rhythm, wrapping, and pres
   expect(contrastChart).toMatch(/\.chart-outer-ring,[\s\S]*\.house-line,[\s\S]*\{\s*stroke:\s*var\(--ink-inverse\)/);
   expectRule(contrastChart, '.aspect-underlay', ['stroke: var(--ink-inverse)', 'opacity: 1']);
 });
+
+it('clips decorative horizontal overflow without becoming the sticky scroll container', () => {
+  expectRule(results, '.results-page', ['overflow-x: clip']);
+  expect(results).not.toMatch(/\.results-page\s*\{[^}]*overflow-x:\s*hidden/s);
+  expectRule(results, '.period-selector', ['position: sticky', 'top: 12px']);
+  expect(results).toMatch(/@media \(max-width: 800px\)[\s\S]*\.period-selector\s*\{[^}]*top:\s*8px/);
+});
