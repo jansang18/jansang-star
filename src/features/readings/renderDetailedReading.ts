@@ -79,7 +79,7 @@ function evidenceLabel(evidence: ReadingEvidence, locale: Locale): string {
       placementPointName(evidence.point, locale),
       zodiacNameByIndex(evidence.signIndex, locale),
       ...(evidence.house === undefined ? [] : [houseLabel(evidence.house, locale)]),
-      motionName(evidence.retrograde ? 'retrograde' : 'direct', locale),
+      ...(evidence.point === 'ascendant' ? [] : [motionName(evidence.retrograde ? 'retrograde' : 'direct', locale)]),
     ].join(' · ');
   }
 

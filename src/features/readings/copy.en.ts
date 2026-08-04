@@ -127,6 +127,14 @@ export function formatPlanetList(occupants: string): string {
   return `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
 }
 
+function occupiedHouseSentence(occupants: string): string {
+  const count = occupants.split(',').filter(Boolean).length;
+  const names = formatPlanetList(occupants);
+  return count === 1
+    ? `${names} gathers its needs here, increasing the density of events and choices.`
+    : `${names} gather different needs here, increasing the density of events and choices.`;
+}
+
 export const READING_COPY_EN: ReadingCopy = {
   'bigThree.role': ({ point }) => point === 'sun'
     ? 'The Sun describes the central will that chooses a direction for your life.'
@@ -148,7 +156,7 @@ export const READING_COPY_EN: ReadingCopy = {
   'planet.action': ({ planet }) => `Observe one automatic response of ${planetName(asPlanet(planet), 'en')} and replace it with one deliberate choice.`,
   'house.domain': ({ house }) => `House ${Number(house)} describes how you experience ${houseName(Number(house), 'en').toLowerCase()}.`,
   'house.cusp': ({ house, signIndex }) => `Because House ${Number(house)} begins in ${zodiacNameByIndex(Number(signIndex), 'en')}, you enter it by ${signApproach(Number(signIndex))}.`,
-  'house.occupied': ({ occupants }) => `${formatPlanetList(String(occupants))} gather different needs here, increasing the density of events and choices.`,
+  'house.occupied': ({ occupants }) => occupiedHouseSentence(String(occupants)),
   'house.empty': ({ house }) => `An empty House ${Number(house)} still operates through the sign on its cusp and that sign's ruling planet.`,
   'house.action': ({ house }) => `Record a recurring scene involving ${houseName(Number(house), 'en').toLowerCase()} to clarify this house's direction of growth.`,
   'aspect.dynamic': ({ from, to, aspectType }) => `The ${aspectName(asAspect(aspectType), 'en')} between ${planetName(asPlanet(from), 'en')} and ${planetName(asPlanet(to), 'en')} describes how these two functions learn to operate together.`,

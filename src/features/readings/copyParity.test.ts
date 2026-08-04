@@ -53,4 +53,28 @@ describe('detailed reading copy', () => {
       expect(new Set(aspects.map(helper))).toHaveLength(5);
     }
   });
+
+  it('uses a particle-safe sentence for Korean element and modality patterns', () => {
+    expect(READING_COPY_KO['bigThree.pattern']({ element: 'fire', modality: 'cardinal' })).toBe(
+      '이 배치에는 다음 두 패턴이 함께 나타납니다: 불의 추진력과 과열을 식히는 절제, 시작하는 힘과 독주를 막는 협의.',
+    );
+  });
+
+  it('uses particle-safe Korean house names', () => {
+    expect(READING_COPY_KO['house.action']({ house: 2 })).toBe(
+      '재물·가치에서 반복되는 장면을 적어 성장 방향을 살펴보세요.',
+    );
+    expect(READING_COPY_KO['house.action']({ house: 4 })).toBe(
+      '가정·뿌리에서 반복되는 장면을 적어 성장 방향을 살펴보세요.',
+    );
+  });
+
+  it('uses singular and plural agreement for English house occupants', () => {
+    expect(READING_COPY_EN['house.occupied']({ occupants: 'sun' })).toBe(
+      'Sun gathers its needs here, increasing the density of events and choices.',
+    );
+    expect(READING_COPY_EN['house.occupied']({ occupants: 'sun,mercury' })).toBe(
+      'Sun and Mercury gather different needs here, increasing the density of events and choices.',
+    );
+  });
 });

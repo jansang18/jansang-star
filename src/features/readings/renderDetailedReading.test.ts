@@ -82,6 +82,28 @@ describe('renderDetailedReading', () => {
     expect(ko.sections.map((section) => section.id)).toEqual(['bigThree', 'planets', 'houses', 'aspects', 'transits']);
     expect(ko.evidenceIds.every((id) => !/[\uac00-\ud7af]/u.test(id))).toBe(true);
 
+    for (const localized of [ko, en]) {
+      const chapter = (id: typeof localized.sections[number]['id']) => localized.sections.find((section) => section.id === id)!;
+      expect(chapter('bigThree').blocks).toHaveLength(3);
+      expect(chapter('planets').blocks).toHaveLength(10);
+      expect(chapter('houses').blocks).toHaveLength(12);
+      expect(chapter('aspects').blocks.length).toBeGreaterThanOrEqual(6);
+      expect(chapter('aspects').blocks.length).toBeLessThanOrEqual(10);
+      expect(chapter('transits').blocks.length).toBeGreaterThanOrEqual(6);
+      expect(chapter('transits').blocks.length).toBeLessThanOrEqual(10);
+
+      const hasSentenceCount = (id: typeof localized.sections[number]['id'], minimum: number, maximum: number) =>
+        chapter(id).blocks.every((block) => {
+          const sentenceCount = 1 + block.paragraphs.length;
+          return sentenceCount >= minimum && sentenceCount <= maximum;
+        });
+      expect(hasSentenceCount('bigThree', 4, 6)).toBe(true);
+      expect(hasSentenceCount('planets', 3, 5)).toBe(true);
+      expect(hasSentenceCount('houses', 2, 4)).toBe(true);
+      expect(hasSentenceCount('aspects', 3, 5)).toBe(true);
+      expect(hasSentenceCount('transits', 3, 5)).toBe(true);
+    }
+
     const modelSentenceCounts = [model.bigThree, model.planets, model.houses, model.aspects, model.transits]
       .flatMap((blocks) => blocks.map((block) => block.sentences.length));
     for (const localized of [ko, en]) {
@@ -118,6 +140,8 @@ describe('renderDetailedReading', () => {
       summary: 'The Sun describes the central will that chooses a direction for your life.',
       evidenceLabels: ['Sun · Aries · House 1 · Direct'],
     });
+    expect(ko.sections[0].blocks[2].evidenceLabels).toEqual(['상승궁 · 양자리 · 1하우스']);
+    expect(en.sections[0].blocks[2].evidenceLabels).toEqual(['Ascendant · Aries · House 1']);
     expect(koSun.paragraphs).toHaveLength(4);
     expect(enSun.paragraphs).toHaveLength(4);
     expect(ko.sections[2].blocks[0].evidenceLabels).toEqual(['1하우스 · 양자리 · 태양']);
