@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Temporal } from '@js-temporal/polyfill';
 import App from './App';
 import { EphemerisLoader } from './components/EphemerisLoader';
+import * as ResultsPageModule from './features/results/ResultsPage';
 import { renderWithI18n } from './test/renderWithI18n';
 
 describe('full app flow', () => {
@@ -21,6 +22,7 @@ describe('full app flow', () => {
 
   it('preserves one real Seoul calculation and its neutral evidence across both languages', async () => {
     const user = userEvent.setup();
+    const resultsPageRender = vi.spyOn(ResultsPageModule, 'ResultsPage');
     const { container } = renderWithI18n(<App />);
     await user.click(screen.getByRole('button', { name: '나의 별자리 만세력 보기' }));
     await user.type(screen.getByLabelText('이름 또는 별칭'), '김별');
@@ -35,11 +37,31 @@ describe('full app flow', () => {
     expect(screen.getAllByText('태양–태양 · 합 · 오브 0.2°').length).toBeGreaterThan(0);
     const koreanFlowScore = container.querySelector('.score-orbit strong')?.textContent;
     expect(koreanFlowScore).toBe('80');
+    const koreanResultProps = resultsPageRender.mock.calls.at(-1)?.[0];
+    expect(koreanResultProps).toBeDefined();
+    expect(koreanResultProps?.profile).toEqual({
+      displayName: '김별',
+      date: '1990-08-05',
+      time: '14:30',
+      timeKnown: true,
+      cityId: 'seoul',
+      latitude: 37.5665,
+      longitude: 126.978,
+      timeZone: 'Asia/Seoul',
+      disambiguation: 'compatible',
+    });
+    const resultKeys = ['profile', 'chart', 'transits', 'fortune', 'monthFortune', 'yearFortune', 'detailedReading'] as const;
+    const koreanRenderCount = resultsPageRender.mock.calls.length;
 
     await user.click(screen.getByRole('button', { name: 'English' }));
     expect(screen.getByRole('heading', { name: "김별's cosmic report" })).toBeInTheDocument();
     expect(screen.getAllByText('Sun–Sun · Conjunction · orb 0.2°').length).toBeGreaterThan(0);
     expect(container.querySelector('.score-orbit strong')).toHaveTextContent(koreanFlowScore ?? '');
+    const englishResultProps = resultsPageRender.mock.calls.at(-1)?.[0];
+    expect(englishResultProps).toBeDefined();
+    expect(resultsPageRender.mock.calls.length).toBeGreaterThan(koreanRenderCount);
+    for (const key of resultKeys) expect(englishResultProps?.[key], key).toBe(koreanResultProps?.[key]);
+    const englishRenderCount = resultsPageRender.mock.calls.length;
 
     await user.click(screen.getByRole('tab', { name: 'This month' }));
     const strongestScore = container.querySelector('.period-node.strongest .period-node-score')?.textContent;
@@ -55,6 +77,10 @@ describe('full app flow', () => {
     expect(container.querySelector('.period-node.softest .period-node-score')).toHaveTextContent(softestScore ?? '');
     expect(within(screen.getByTestId('reading-section-bigThree')).getByRole('button', { name: '태양' }))
       .toHaveAttribute('aria-expanded', 'true');
+    const restoredKoreanResultProps = resultsPageRender.mock.calls.at(-1)?.[0];
+    expect(restoredKoreanResultProps).toBeDefined();
+    expect(resultsPageRender.mock.calls.length).toBeGreaterThan(englishRenderCount);
+    for (const key of resultKeys) expect(restoredKoreanResultProps?.[key], key).toBe(koreanResultProps?.[key]);
 
     await user.click(screen.getAllByRole('button', { name: '출생정보 수정' })[0]);
     expect(screen.getByLabelText('이름 또는 별칭')).toHaveValue('김별');

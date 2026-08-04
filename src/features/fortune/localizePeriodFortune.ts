@@ -72,7 +72,6 @@ function directionFor(first: number, last: number): 'up' | 'down' | 'even' {
 
 export function localizePeriodFortune(model: PeriodFortune, locale: Locale): LocalizedPeriodFortune {
   const copy = copyFor(locale);
-  const authored = (value: unknown, ...params: unknown[]) => safeAuthoredCopy(locale, value, ...params);
   const label = formatPeriodLabel(model.period, model.anchorDate, locale);
   const overallTone = toneFor(model.overallScore);
   const timeline: LocalizedPeriodPoint[] = model.timeline.map((point) => ({
@@ -90,54 +89,54 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
   })) as Record<FortuneCategory, LocalizedPeriodCategory>;
   const categoryStrategies = Object.fromEntries(CATEGORY_KEYS.map((category) => {
     const { label: categoryLabel, score, tone } = categories[category];
-    const localizedTone = authored(copy.toneLabels?.[tone]);
+    const localizedTone = safeAuthoredCopy(locale, copy.toneLabels?.[tone]);
     return [category, [
-      authored(copy.strategy?.intensity, categoryLabel, scoreText(score, locale), localizedTone),
-      authored(copy.strategy?.opportunity, categoryLabel, localizedTone),
-      authored(copy.strategy?.caution, categoryLabel, localizedTone),
-      authored(copy.strategy?.action, categoryLabel, localizedTone),
+      safeAuthoredCopy(locale, copy.strategy?.intensity, categoryLabel, scoreText(score, locale), localizedTone),
+      safeAuthoredCopy(locale, copy.strategy?.opportunity, categoryLabel, localizedTone),
+      safeAuthoredCopy(locale, copy.strategy?.caution, categoryLabel, localizedTone),
+      safeAuthoredCopy(locale, copy.strategy?.action, categoryLabel, localizedTone),
     ]];
   })) as Record<FortuneCategory, string[]>;
 
   const overview = [
-    authored(copy.overview?.overall, label, scoreText(model.overallScore, locale), authored(copy.toneLabels?.[overallTone])),
-    authored(copy.overview?.strongestCategory, strongestCategoryLabel, scoreText(model.categories[strongestCategory], locale)),
-    authored(copy.overview?.softestCategory, categoryName(softestCategory, locale), scoreText(model.categories[softestCategory], locale)),
-    authored(copy.overview?.risingWindow, strongestPoint.label, scoreText(strongestPoint.score, locale)),
-    authored(copy.overview?.cautionWindow, softestPoint.label, scoreText(softestPoint.score, locale)),
+    safeAuthoredCopy(locale, copy.overview?.overall, label, scoreText(model.overallScore, locale), safeAuthoredCopy(locale, copy.toneLabels?.[overallTone])),
+    safeAuthoredCopy(locale, copy.overview?.strongestCategory, strongestCategoryLabel, scoreText(model.categories[strongestCategory], locale)),
+    safeAuthoredCopy(locale, copy.overview?.softestCategory, categoryName(softestCategory, locale), scoreText(model.categories[softestCategory], locale)),
+    safeAuthoredCopy(locale, copy.overview?.risingWindow, strongestPoint.label, scoreText(strongestPoint.score, locale)),
+    safeAuthoredCopy(locale, copy.overview?.cautionWindow, softestPoint.label, scoreText(softestPoint.score, locale)),
   ];
 
   if (model.period === 'year') {
     const firstHalfScore = average(model.timeline.slice(0, 6).map((point) => point.score));
     const secondHalfScore = average(model.timeline.slice(6).map((point) => point.score));
     overview.push(
-      authored(copy.overview?.firstHalf, scoreText(firstHalfScore, locale), authored(copy.toneLabels?.[toneFor(firstHalfScore)])),
-      authored(copy.overview?.secondHalf, scoreText(secondHalfScore, locale), authored(copy.toneLabels?.[toneFor(secondHalfScore)])),
+      safeAuthoredCopy(locale, copy.overview?.firstHalf, scoreText(firstHalfScore, locale), safeAuthoredCopy(locale, copy.toneLabels?.[toneFor(firstHalfScore)])),
+      safeAuthoredCopy(locale, copy.overview?.secondHalf, scoreText(secondHalfScore, locale), safeAuthoredCopy(locale, copy.toneLabels?.[toneFor(secondHalfScore)])),
     );
   }
 
   overview.push(
-    authored(copy.overview?.rhythm, strongestPoint.label, softestPoint.label),
-    authored(copy.overview?.action, strongestCategoryLabel, strongestPoint.label),
+    safeAuthoredCopy(locale, copy.overview?.rhythm, strongestPoint.label, softestPoint.label),
+    safeAuthoredCopy(locale, copy.overview?.action, strongestCategoryLabel, strongestPoint.label),
   );
 
   const segmentCopy = copy.segment?.[model.period];
   const segments = timeline.map((point) => {
-    const localizedTone = authored(copy.toneLabels?.[point.tone]);
+    const localizedTone = safeAuthoredCopy(locale, copy.toneLabels?.[point.tone]);
     const score = scoreText(point.score, locale);
     return {
       id: `${model.period}-segment-${point.date}`,
       label: point.label,
-      title: authored(segmentCopy?.title, point.label),
-      summary: authored(segmentCopy?.summary, point.label, score, localizedTone),
+      title: safeAuthoredCopy(locale, segmentCopy?.title, point.label),
+      summary: safeAuthoredCopy(locale, segmentCopy?.summary, point.label, score, localizedTone),
       score: point.score,
       tone: point.tone,
       paragraphs: [
-        authored(segmentCopy?.experience, point.label, score, localizedTone),
-        authored(segmentCopy?.use, point.label, localizedTone),
-        authored(segmentCopy?.caution, point.label, localizedTone),
+        safeAuthoredCopy(locale, segmentCopy?.experience, point.label, score, localizedTone),
+        safeAuthoredCopy(locale, segmentCopy?.use, point.label, localizedTone),
+        safeAuthoredCopy(locale, segmentCopy?.caution, point.label, localizedTone),
       ],
-      evidenceLabels: [authored(copy.evidence, point.label, score)],
+      evidenceLabels: [safeAuthoredCopy(locale, copy.evidence, point.label, score)],
     };
   });
 
@@ -146,22 +145,22 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
       const points = timeline.slice(index * 3, index * 3 + 3);
       const score = average(points.map((point) => point.score));
       const tone = toneFor(score);
-      const quarterLabel = authored(copy.quarter?.label, index + 1);
-      const localizedTone = authored(copy.toneLabels?.[tone]);
+      const quarterLabel = safeAuthoredCopy(locale, copy.quarter?.label, index + 1);
+      const localizedTone = safeAuthoredCopy(locale, copy.toneLabels?.[tone]);
       return {
         id: `year-quarter-${index + 1}`,
         label: quarterLabel,
-        title: authored(copy.quarter?.title, quarterLabel),
-        summary: authored(copy.quarter?.summary, quarterLabel, scoreText(score, locale), localizedTone),
+        title: safeAuthoredCopy(locale, copy.quarter?.title, quarterLabel),
+        summary: safeAuthoredCopy(locale, copy.quarter?.summary, quarterLabel, scoreText(score, locale), localizedTone),
         score,
         tone,
         paragraphs: [
-          authored(copy.quarter?.flow, quarterLabel, scoreText(score, locale), localizedTone),
-          authored(copy.quarter?.focus, quarterLabel, strongestCategoryLabel),
-          authored(copy.quarter?.turning, quarterLabel, directionFor(points[0].score, points[2].score)),
-          authored(copy.quarter?.action, quarterLabel, strongestCategoryLabel, localizedTone),
+          safeAuthoredCopy(locale, copy.quarter?.flow, quarterLabel, scoreText(score, locale), localizedTone),
+          safeAuthoredCopy(locale, copy.quarter?.focus, quarterLabel, strongestCategoryLabel),
+          safeAuthoredCopy(locale, copy.quarter?.turning, quarterLabel, directionFor(points[0].score, points[2].score)),
+          safeAuthoredCopy(locale, copy.quarter?.action, quarterLabel, strongestCategoryLabel, localizedTone),
         ],
-        evidenceLabels: points.map((point) => authored(copy.evidence, point.label, scoreText(point.score, locale))),
+        evidenceLabels: points.map((point) => safeAuthoredCopy(locale, copy.evidence, point.label, scoreText(point.score, locale))),
       };
     })
     : [];
@@ -169,7 +168,7 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
   return {
     period: model.period,
     label,
-    headline: authored(copy.headlines?.[model.period]?.[overallTone], label),
+    headline: safeAuthoredCopy(locale, copy.headlines?.[model.period]?.[overallTone], label),
     overallScore: model.overallScore,
     categories,
     overview,
@@ -177,27 +176,27 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
     timeline,
     segments,
     quarters,
-    opportunity: authored(copy.window?.opportunity, strongestPoint.label, scoreText(strongestPoint.score, locale)),
-    caution: authored(copy.window?.caution, softestPoint.label, scoreText(softestPoint.score, locale)),
+    opportunity: safeAuthoredCopy(locale, copy.window?.opportunity, strongestPoint.label, scoreText(strongestPoint.score, locale)),
+    caution: safeAuthoredCopy(locale, copy.window?.caution, softestPoint.label, scoreText(softestPoint.score, locale)),
     ui: {
       kicker: {
-        month: authored(copy.ui?.kicker?.month),
-        year: authored(copy.ui?.kicker?.year),
+        month: safeAuthoredCopy(locale, copy.ui?.kicker?.month),
+        year: safeAuthoredCopy(locale, copy.ui?.kicker?.year),
       },
       description: {
-        month: authored(copy.ui?.description?.month),
-        year: authored(copy.ui?.description?.year),
+        month: safeAuthoredCopy(locale, copy.ui?.description?.month),
+        year: safeAuthoredCopy(locale, copy.ui?.description?.year),
       },
-      overview: authored(copy.ui?.overview),
-      strategies: authored(copy.ui?.strategies),
+      overview: safeAuthoredCopy(locale, copy.ui?.overview),
+      strategies: safeAuthoredCopy(locale, copy.ui?.strategies),
       segments: {
-        month: authored(copy.ui?.segments?.month),
-        year: authored(copy.ui?.segments?.year),
+        month: safeAuthoredCopy(locale, copy.ui?.segments?.month),
+        year: safeAuthoredCopy(locale, copy.ui?.segments?.year),
       },
-      quarters: authored(copy.ui?.quarters),
-      opportunity: authored(copy.ui?.opportunity),
-      caution: authored(copy.ui?.caution),
-      chartSuffix: authored(copy.ui?.chartSuffix),
+      quarters: safeAuthoredCopy(locale, copy.ui?.quarters),
+      opportunity: safeAuthoredCopy(locale, copy.ui?.opportunity),
+      caution: safeAuthoredCopy(locale, copy.ui?.caution),
+      chartSuffix: safeAuthoredCopy(locale, copy.ui?.chartSuffix),
     },
   };
 }

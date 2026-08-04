@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 import { DAILY_FORTUNE_COPY_EN } from '../features/fortune/copy.en';
 import { DAILY_FORTUNE_COPY_KO } from '../features/fortune/copy.ko';
 import type { DailyFortune } from '../features/fortune/generateFortune';
@@ -11,6 +11,7 @@ import { READING_COPY_EN } from '../features/readings/copy.en';
 import { READING_COPY_KO } from '../features/readings/copy.ko';
 import { renderDetailedReading } from '../features/readings/renderDetailedReading';
 import type { DetailedReadingModel } from '../features/readings/types';
+import { safeAuthoredCopy } from './authoredCopy';
 import { TRANSLATIONS, translate, type TranslationKey } from './translations';
 
 type Leaf = { path: string; value: unknown };
@@ -76,6 +77,10 @@ const detailedModel: DetailedReadingModel = {
   transits: [],
   unavailable: [],
 };
+const localeCases = [
+  { locale: 'ko' as const, generic: '이 내용을 표시할 수 없습니다.' },
+  { locale: 'en' as const, generic: 'Content is unavailable.' },
+];
 
 describe('translation coverage', () => {
   it('has a non-empty authored value for every UI key in both languages', () => {
@@ -116,42 +121,61 @@ describe('translation coverage', () => {
     }
   });
 
-  it('uses an English generic detail message when authored detailed copy is missing', () => {
-    const mutable = READING_COPY_EN as unknown as Record<string, ((params: unknown) => string) | undefined>;
+  it.each(localeCases)('uses the $locale generic detail message when authored detailed copy is missing', ({ locale, generic }) => {
+    const current = locale === 'ko' ? READING_COPY_KO : READING_COPY_EN;
+    const opposite = locale === 'ko' ? READING_COPY_EN : READING_COPY_KO;
+    const mutable = current as unknown as Record<string, ((params: unknown) => string) | undefined>;
     const saved = mutable['bigThree.role'];
     delete mutable['bigThree.role'];
     try {
-      const summary = renderDetailedReading(detailedModel, 'en').sections[0].blocks[0].summary;
-      expect(summary).toBe('Content is unavailable.');
-      expect(summary).not.toBe(READING_COPY_KO['bigThree.role']({ point: 'sun' }));
+      const summary = renderDetailedReading(detailedModel, locale).sections[0].blocks[0].summary;
+      expect(summary).toBe(generic);
+      expect(summary).not.toBe(opposite['bigThree.role']({ point: 'sun' }));
     } finally {
       mutable['bigThree.role'] = saved;
     }
   });
 
-  it('uses an English generic daily message when authored daily copy is missing', () => {
-    const summaries = DAILY_FORTUNE_COPY_EN.overall.summaries.medium as unknown as Array<string | undefined>;
+  it.each(localeCases)('uses the $locale generic daily message when authored daily copy is missing', ({ locale, generic }) => {
+    const current = locale === 'ko' ? DAILY_FORTUNE_COPY_KO : DAILY_FORTUNE_COPY_EN;
+    const opposite = locale === 'ko' ? DAILY_FORTUNE_COPY_EN : DAILY_FORTUNE_COPY_KO;
+    const summaries = current.overall.summaries.medium as unknown as Array<string | undefined>;
     const saved = summaries[0];
     delete summaries[0];
     try {
-      const summary = localizeDailyFortune(dailyModel, 'en').categories.overall.summary;
-      expect(summary).toBe('Content is unavailable.');
-      expect(summary).not.toBe(DAILY_FORTUNE_COPY_KO.overall.summaries.medium[0]);
+      const summary = localizeDailyFortune(dailyModel, locale).categories.overall.summary;
+      expect(summary).toBe(generic);
+      expect(summary).not.toBe(opposite.overall.summaries.medium[0]);
     } finally {
       summaries[0] = saved;
     }
   });
 
-  it('uses an English generic period message when authored period copy is missing', () => {
-    const headlines = PERIOD_COPY_EN.headlines.month as unknown as Record<string, ((label: string) => string) | undefined>;
+  it.each(localeCases)('uses the $locale generic period message when authored period copy is missing', ({ locale, generic }) => {
+    const current = locale === 'ko' ? PERIOD_COPY_KO : PERIOD_COPY_EN;
+    const opposite = locale === 'ko' ? PERIOD_COPY_EN : PERIOD_COPY_KO;
+    const headlines = current.headlines.month as unknown as Record<string, ((label: string) => string) | undefined>;
     const saved = headlines.steady;
     delete headlines.steady;
     try {
-      const headline = localizePeriodFortune(periodModel, 'en').headline;
-      expect(headline).toBe('Content is unavailable.');
-      expect(headline).not.toBe(PERIOD_COPY_KO.headlines.month.steady('2026년 8월'));
+      const headline = localizePeriodFortune(periodModel, locale).headline;
+      expect(headline).toBe(generic);
+      expect(headline).not.toBe(opposite.headlines.month.steady('opposite locale'));
     } finally {
       headlines.steady = saved;
+    }
+  });
+
+  it('preserves authored function parameter tuples and a string return type', () => {
+    const rendered = safeAuthoredCopy('en', (score: number, tone: 'flow' | 'care') => `${score}:${tone}`, 72, 'flow');
+    expect(rendered).toBe('72:flow');
+    expectTypeOf(rendered).toEqualTypeOf<string>();
+
+    if (false) {
+      // @ts-expect-error Authored copy must retain the exact score parameter type.
+      safeAuthoredCopy('en', (score: number) => String(score), '72');
+      // @ts-expect-error Authored copy must retain the exact function arity.
+      safeAuthoredCopy('en', (score: number, tone: string) => `${score}:${tone}`, 72);
     }
   });
 });

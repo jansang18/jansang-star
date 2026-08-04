@@ -52,20 +52,25 @@ describe('BirthForm', () => {
     render(<I18nProvider initialLocale="ko"><LanguageSwitch /><BirthForm onSubmit={() => {}} /></I18nProvider>);
 
     await user.tab();
-    expect(screen.getByRole('button', { name: '한국어' })).toHaveFocus();
-    expect(screen.getByRole('button', { name: '한국어' })).toHaveAttribute('aria-pressed', 'true');
+    const initialKorean = screen.getByRole('button', { name: '한국어' });
+    const initialEnglish = screen.getByRole('button', { name: 'English' });
+    expect(initialKorean).toHaveFocus();
+    expect(initialKorean).toHaveAttribute('aria-pressed', 'true');
+    expect(initialEnglish).toHaveAttribute('aria-pressed', 'false');
 
     await user.tab();
     const english = screen.getByRole('button', { name: 'English' });
     expect(english).toHaveFocus();
     await user.keyboard('{Enter}');
     expect(english).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: '한국어' })).toHaveAttribute('aria-pressed', 'false');
 
     await user.tab({ shift: true });
     const korean = screen.getByRole('button', { name: '한국어' });
     expect(korean).toHaveFocus();
     await user.keyboard(' ');
     expect(korean).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'English' })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('finds a city by its English name', async () => {

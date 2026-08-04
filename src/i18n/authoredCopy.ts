@@ -5,9 +5,21 @@ const GENERIC_COPY: Record<Locale, string> = {
   en: 'Content is unavailable.',
 };
 
-export function safeAuthoredCopy(locale: Locale, value: unknown, ...params: unknown[]): string {
+type AuthoredFunction = (...params: never[]) => string;
+
+export function safeAuthoredCopy(locale: Locale, value: string | null | undefined): string;
+export function safeAuthoredCopy<Params extends unknown[]>(
+  locale: Locale,
+  value: ((...params: Params) => string) | null | undefined,
+  ...params: Params
+): string;
+export function safeAuthoredCopy(
+  locale: Locale,
+  value: string | AuthoredFunction | null | undefined,
+  ...params: unknown[]
+): string {
   const rendered = typeof value === 'function'
-    ? (value as (...args: unknown[]) => unknown)(...params)
+    ? Reflect.apply(value, undefined, params)
     : value;
   return typeof rendered === 'string' && rendered.trim() !== '' ? rendered : GENERIC_COPY[locale];
 }
