@@ -8,6 +8,13 @@ const EMPTY: BirthProfile = { displayName: '', date: '', time: '12:00', timeKnow
 
 type Props = { onSubmit: (profile: BirthProfile) => void; initialProfile?: BirthProfile | null; busy?: boolean };
 
+function formatBirthDate(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 4) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+}
+
 export function BirthForm({ onSubmit, initialProfile, busy = false }: Props) {
   const [profile, setProfile] = useState<BirthProfile>(initialProfile ?? EMPTY);
   const [errors, setErrors] = useState<ReturnType<typeof validateBirthProfile>>({});
@@ -27,7 +34,7 @@ export function BirthForm({ onSubmit, initialProfile, busy = false }: Props) {
     <form onSubmit={submit} noValidate>
       <div className="form-grid">
         <div className="field full"><label htmlFor="display-name">이름 또는 별칭</label><div className="input-wrap"><span aria-hidden="true">✦</span><input id="display-name" {...bind('displayName')} placeholder="결과에 표시할 이름" aria-invalid={!!errors.displayName} /></div>{errors.displayName && <p className="field-error">{errors.displayName}</p>}</div>
-        <div className="field"><label htmlFor="birth-date">생년월일</label><div className="input-wrap"><span aria-hidden="true">◌</span><input id="birth-date" type="date" {...bind('date')} aria-invalid={!!errors.date} /></div>{errors.date && <p className="field-error">{errors.date}</p>}</div>
+        <div className="field"><label htmlFor="birth-date">생년월일</label><div className="input-wrap"><span aria-hidden="true">◌</span><input id="birth-date" type="text" inputMode="numeric" autoComplete="bday" placeholder="YYYY-MM-DD" maxLength={10} value={profile.date} onChange={(event) => setProfile({ ...profile, date: formatBirthDate(event.target.value) })} aria-describedby="birth-date-hint" aria-invalid={!!errors.date} /></div><p className="field-hint" id="birth-date-hint">숫자 8자리 입력 · 예: 19900805</p>{errors.date && <p className="field-error">{errors.date}</p>}</div>
         <div className="field"><label htmlFor="birth-time">출생시간</label><div className="input-wrap"><span aria-hidden="true">◷</span><input id="birth-time" type="time" {...bind('time')} disabled={!profile.timeKnown} aria-invalid={!!errors.time} /></div><label className="check-label"><input type="checkbox" checked={!profile.timeKnown} onChange={(event) => setProfile({ ...profile, timeKnown: !event.target.checked })} /> 시간을 몰라요</label>{errors.time && <p className="field-error">{errors.time}</p>}</div>
         {!custom && <div className="full"><CityCombobox selectedId={profile.cityId} error={errors.cityId} onSelect={(city) => setProfile({ ...profile, cityId: city.id, latitude: city.latitude, longitude: city.longitude, timeZone: city.timeZone })} /></div>}
         <div className="full"><button className="text-button" type="button" onClick={() => { setCustom((value) => !value); if (!custom) setProfile({ ...profile, cityId: 'custom' }); }}>{custom ? '도시 검색으로 돌아가기' : '목록에 없는 장소 직접 입력'}</button></div>
