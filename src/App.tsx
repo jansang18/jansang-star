@@ -8,12 +8,14 @@ import type { NatalChartData } from './features/astrology/types';
 import { calculateDailyTransits, type TransitData } from './features/fortune/transits';
 import { generateDailyFortune, type DailyFortune } from './features/fortune/generateFortune';
 import { ResultsPage } from './features/results/ResultsPage';
+import { AppError } from './components/AppError';
+import { EphemerisLoader } from './components/EphemerisLoader';
 
 type ResultState = { profile: BirthProfile; chart: NatalChartData; transits: TransitData; fortune: DailyFortune };
 
 export default function App() {
   const [started, setStarted] = useState(false);
-  const [initialProfile] = useState(() => loadProfile());
+  const [savedProfile, setSavedProfile] = useState(() => loadProfile());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<ResultState | null>(null);
@@ -22,6 +24,7 @@ export default function App() {
     setBusy(true); setError('');
     try {
       saveProfile(profile);
+      setSavedProfile(profile);
       const chart = await calculateNatalChart(profile);
       const date = Temporal.Now.plainDateISO(profile.timeZone).toString();
       const transits = await calculateDailyTransits(chart, profile, date);
@@ -52,8 +55,9 @@ export default function App() {
           나의 별자리 만세력 보기 <span aria-hidden="true">→</span>
         </button>
       </section>}
-      {started && <BirthForm onSubmit={handleSubmit} initialProfile={initialProfile} busy={busy} />}
-      {error && <div className="app-error" role="alert"><b>별의 위치를 계산하지 못했어요</b><span>{error}</span><button type="button" onClick={() => setError('')}>닫기</button></div>}
+      {started && <BirthForm onSubmit={handleSubmit} initialProfile={savedProfile} busy={busy} />}
+      <AppError message={error} onClose={() => setError('')} />
+      {busy && <EphemerisLoader />}
       <section className="preview-orbit" aria-hidden="true">
         <div className="orbit-ring orbit-ring-one" />
         <div className="orbit-ring orbit-ring-two" />
