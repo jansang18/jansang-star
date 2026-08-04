@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
+import { renderWithI18n } from './test/renderWithI18n';
 
 describe('full app flow', () => {
   beforeEach(() => { localStorage.clear(); vi.stubGlobal('scrollTo', vi.fn()); });
 
   it('calculates a profile and returns to edit mode', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderWithI18n(<App />);
     await user.click(screen.getByRole('button', { name: '나의 별자리 만세력 보기' }));
     await user.type(screen.getByLabelText('이름 또는 별칭'), '김별');
     await user.type(screen.getByLabelText('생년월일'), '1990-08-05');
