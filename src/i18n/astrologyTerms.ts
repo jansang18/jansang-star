@@ -6,7 +6,7 @@ import type { Locale } from './types';
 
 type PointId = 'sun' | 'moon' | 'ascendant';
 type Motion = 'direct' | 'retrograde';
-type ChartTextKey = 'chartTitle' | 'legend' | 'harmony' | 'tension' | 'axis' | 'placementSummary' | 'placements' | 'planet' | 'zodiacPosition' | 'house' | 'status' | 'unknownTime' | 'ascendantAbbreviation' | 'midheavenAbbreviation';
+type ChartTextKey = 'chartTitle' | 'legend' | 'conjunction' | 'harmony' | 'tension' | 'axis' | 'placementSummary' | 'placements' | 'planet' | 'zodiacPosition' | 'house' | 'status' | 'unknownTime' | 'ascendantAbbreviation' | 'midheavenAbbreviation';
 
 const TERMS: Record<Locale, {
   planets: Record<PlanetId, string>;
@@ -26,7 +26,7 @@ const TERMS: Record<Locale, {
     houses: ['자아·첫인상', '재물·가치', '소통·학습', '가정·뿌리', '창조·연애', '일상·건강', '관계·파트너', '공유·변화', '신념·여행', '직업·명예', '친구·미래', '내면·회복'],
     categories: { overall: '종합운', love: '연애운', money: '재물운', career: '직업운', health: '건강운' },
     motion: { direct: '순행', retrograde: '역행' },
-    chart: { chartTitle: '출생 차트 원형 도표', legend: '차트 선 범례', harmony: '조화 흐름', tension: '긴장 흐름', axis: 'ASC · MC 축', placementSummary: '행성 배치표 열기', placements: '행성 배치표', planet: '행성', zodiacPosition: '별자리 위치', house: '하우스', status: '상태', unknownTime: '시간 미상', ascendantAbbreviation: 'ASC', midheavenAbbreviation: 'MC' },
+    chart: { chartTitle: '출생 차트 원형 도표', legend: '차트 선 범례', conjunction: '결합', harmony: '조화', tension: '긴장', axis: 'ASC·MC', placementSummary: '행성 배치표 열기', placements: '행성 배치표', planet: '행성', zodiacPosition: '별자리 위치', house: '하우스', status: '상태', unknownTime: '시간 미상', ascendantAbbreviation: 'ASC', midheavenAbbreviation: 'MC' },
   },
   en: {
     planets: { sun: 'Sun', moon: 'Moon', mercury: 'Mercury', venus: 'Venus', mars: 'Mars', jupiter: 'Jupiter', saturn: 'Saturn', uranus: 'Uranus', neptune: 'Neptune', pluto: 'Pluto' },
@@ -36,7 +36,7 @@ const TERMS: Record<Locale, {
     houses: ['Self & approach', 'Resources & values', 'Communication & learning', 'Home & roots', 'Creativity & romance', 'Routine & wellbeing', 'Relationships & partnership', 'Shared resources & transformation', 'Beliefs & travel', 'Career & reputation', 'Community & future', 'Inner life & restoration'],
     categories: { overall: 'Overall', love: 'Love', money: 'Money', career: 'Career', health: 'Health' },
     motion: { direct: 'Direct', retrograde: 'Retrograde' },
-    chart: { chartTitle: 'Circular natal chart', legend: 'Chart line legend', harmony: 'Harmonious flow', tension: 'Tense flow', axis: 'ASC · MC axis', placementSummary: 'Open planetary placements', placements: 'Planetary placements', planet: 'Planet', zodiacPosition: 'Zodiac position', house: 'House', status: 'Status', unknownTime: 'Time unknown', ascendantAbbreviation: 'ASC', midheavenAbbreviation: 'MC' },
+    chart: { chartTitle: 'Circular natal chart', legend: 'Chart line legend', conjunction: 'Conjunction', harmony: 'Harmony', tension: 'Tension', axis: 'ASC·MC', placementSummary: 'Open planetary placements', placements: 'Planetary placements', planet: 'Planet', zodiacPosition: 'Zodiac position', house: 'House', status: 'Status', unknownTime: 'Time unknown', ascendantAbbreviation: 'ASC', midheavenAbbreviation: 'MC' },
   },
 };
 

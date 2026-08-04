@@ -1,18 +1,25 @@
 :root {
-  --sky: #070914;
-  --lavender: #111126;
-  --peach: #171120;
-  --violet: #a99bff;
-  --violet-deep: #8171ed;
-  --ink: #f7f7ff;
-  --muted: #a7a9bd;
-  --glass: rgba(30, 31, 55, 0.62);
-  --line: rgba(204, 200, 255, 0.16);
-  --shadow: 0 32px 100px rgba(0, 0, 0, 0.42), inset 0 1px rgba(255,255,255,.08);
+  --paper: #F3EFE7;
+  --paper-elevated: #FBF8F1;
+  --obsidian: #11100E;
+  --obsidian-soft: #1A1815;
+  --brass: #B79A62;
+  --brass-soft: #D2C29F;
+  --ink: #24211D;
+  --ink-inverse: #F4F0E8;
+  --muted: #777168;
+  --cobalt: #385A78;
+  --copper: #9C5544;
+  --hairline: rgba(36, 33, 29, .16);
+  --hairline-inverse: rgba(244, 240, 232, .18);
   --content-rail: 1120px;
-  font-family: Inter, Pretendard, "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  --page-gutter: clamp(16px, 4vw, 40px);
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+  --font-body: Inter, Pretendard, "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  --shadow-soft: 0 24px 70px rgba(17, 16, 14, .12), inset 0 1px rgba(255, 255, 255, .52);
+  font-family: var(--font-body);
   color: var(--ink);
-  background: var(--sky);
+  background: var(--paper);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }

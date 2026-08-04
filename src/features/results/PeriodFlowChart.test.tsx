@@ -22,7 +22,7 @@ describe('PeriodFlowChart', () => {
     expect(line).toHaveAttribute('d', expect.stringMatching(/^M /));
     expect(line).toHaveAttribute('stroke-width', '3');
     expect(area).toHaveAttribute('d', expect.stringMatching(/ Z$/));
-    expect(area).toHaveAttribute('fill-opacity', '0.12');
+    expect(area).toHaveAttribute('fill-opacity', '0.08');
     expect(container.querySelectorAll('.period-node')).toHaveLength(5);
   });
 

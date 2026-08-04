@@ -13,6 +13,7 @@ describe('NatalChart', () => {
     renderWithI18n(<NatalChart chart={chart} />);
     expect(screen.getByRole('img', { name: '출생 차트 원형 도표' })).toBeInTheDocument();
     expect(screen.getByRole('table', { name: '행성 배치표' })).toBeInTheDocument();
+    expect(screen.getByLabelText('차트 선 범례')).toHaveTextContent('결합조화긴장ASC·MC');
   });
 
   it('renders an English chart title and placement table from the same chart', () => {
@@ -20,5 +21,6 @@ describe('NatalChart', () => {
     expect(screen.getByRole('img', { name: 'Circular natal chart' })).toBeInTheDocument();
     expect(screen.getByRole('table', { name: 'Planetary placements' })).toBeInTheDocument();
     expect(screen.getByText('Aries 0°00′')).toBeInTheDocument();
+    expect(screen.getByLabelText('Chart line legend')).toHaveTextContent('ConjunctionHarmonyTensionASC·MC');
   });
 });

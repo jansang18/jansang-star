@@ -11,9 +11,9 @@ export default defineConfig(({ mode }) => {
     registerType: 'autoUpdate',
     includeAssets: ['icons/icon.svg'],
     manifest: {
-      name: '잔상 별자리', short_name: '잔상별자리',
-      description: '태어난 순간의 별빛과 오늘의 흐름을 읽는 별자리 만세력',
-      theme_color: '#8171ed', background_color: '#070914', display: 'standalone', start_url: base,
+      name: '잔상 별자리 · Jansang Star', short_name: '잔상별자리',
+      description: 'Detailed bilingual natal chart and horoscope · 한영 별자리 만세력',
+      theme_color: '#11100E', background_color: '#F3EFE7', display: 'standalone', start_url: base,
       icons: [{ src: `${base}icons/icon.svg`, sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
     },
     workbox: {

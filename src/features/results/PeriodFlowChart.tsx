@@ -20,7 +20,7 @@ export function PeriodFlowChart({ points, label }: Props) {
   const strongestIndex = points.length > 0 ? extremeIndex(points, 'strongest') : -1;
   const softestIndex = points.length > 0 ? extremeIndex(points, 'softest') : -1;
 
-  return <svg
+  return <div className="period-flow-scroll"><svg
     className="period-flow-chart"
     viewBox={`0 0 ${width} ${height}`}
     role="img"
@@ -28,7 +28,7 @@ export function PeriodFlowChart({ points, label }: Props) {
     focusable="false"
   >
     <title>{label}</title>
-    <path className="period-area" d={geometry.areaPath} fill="currentColor" fillOpacity="0.12" />
+    <path className="period-area" d={geometry.areaPath} fill="currentColor" fillOpacity="0.08" />
     <path
       className="period-line"
       d={geometry.linePath}
@@ -70,5 +70,5 @@ export function PeriodFlowChart({ points, label }: Props) {
         <text className="period-node-label" x={point.x} y={height - 8} textAnchor="middle">{source.label}</text>
       </g>;
     })}
-  </svg>;
+  </svg></div>;
 }

@@ -1,1 +1,220 @@
-.natal-chart-wrap { width: 100%; }.natal-chart { display: block; width: min(100%, 520px); height: auto; margin: auto; overflow: visible; filter: drop-shadow(0 25px 42px rgba(0,0,0,.42)); }.zodiac-label { fill: #c7beff; font-size: 14px; font-weight:650; text-anchor: middle; }.house-line { stroke: #514f70; stroke-width: .9; }.angle-line { stroke: #c3b8ff; stroke-width: 2; }.house-number { fill: #a8a5bf; font-size: 7px; font-weight:700; text-anchor: middle; }.planet-glyph { fill: #f1efff; font-size: 15px; font-weight: 760; text-anchor: middle; }.retrograde { fill: #ff8daf; font-size: 6px; font-weight: 850; }.center-star { fill: #b2a7ff; font-size: 22px; text-anchor: middle; text-shadow: -7px 3px 12px #6ec8ff, 7px -3px 12px #f1a8cc; }.angle-label { fill: #d4ceff; font-size: 8px; font-weight: 900; letter-spacing: .08em; text-anchor: middle; }.placement-table { margin-top: 12px; border-radius: 14px; background: rgba(255,255,255,.6); font-size: .75rem; }.placement-table summary { padding: 10px 13px; color: var(--violet-deep); cursor: pointer; font-weight: 720; }.table-scroll { overflow-x: auto; padding: 0 12px 12px; }.placement-table table { width: 100%; border-collapse: collapse; text-align: left; }.placement-table th, .placement-table td { padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }.placement-table td { color: var(--muted); }.chart-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:9px 16px;margin:8px auto 2px;color:var(--muted);font-size:.65rem}.chart-legend span{display:flex;align-items:center;gap:6px}.chart-legend i{display:inline-block;width:24px;height:2px;border-radius:4px;background:#7390e8;box-shadow:0 0 7px rgba(115,144,232,.5)}.chart-legend i.tension{height:0;border-top:2px dashed #ef7697;background:none;box-shadow:none}.chart-legend i.axis{height:3px;background:#c3b8ff}
+.natal-chart-wrap {
+  width: 100%;
+}
+
+.natal-chart {
+  display: block;
+  width: min(100%, 520px);
+  height: auto;
+  margin: auto;
+  overflow: visible;
+  filter: drop-shadow(0 24px 38px rgba(0, 0, 0, .34));
+}
+
+.chart-outer-ring {
+  fill: rgba(244, 240, 232, .025);
+  stroke: var(--hairline-inverse);
+  stroke-width: 1.25;
+}
+
+.chart-observatory-ring {
+  fill: url(#chartGlow);
+  stroke: var(--brass-soft);
+  stroke-width: 2.25;
+}
+
+.chart-secondary-ring {
+  fill: none;
+  stroke: rgba(210, 194, 159, .48);
+  stroke-width: 1.25;
+}
+
+.chart-inner-ring {
+  fill: rgba(244, 240, 232, .02);
+  stroke: var(--hairline-inverse);
+  stroke-width: 1.25;
+}
+
+.zodiac-division {
+  stroke: rgba(210, 194, 159, .52);
+  stroke-width: 1.25;
+}
+
+.zodiac-label {
+  fill: var(--brass-soft);
+  font-family: "Times New Roman", serif;
+  font-size: 14px;
+  font-variant-emoji: text;
+  font-weight: 650;
+  text-anchor: middle;
+}
+
+.house-line {
+  stroke: rgba(244, 240, 232, .3);
+  stroke-width: .9;
+}
+
+.angle-line {
+  stroke: var(--brass);
+  stroke-width: 2;
+}
+
+.house-number {
+  fill: var(--brass-soft);
+  font-size: 8px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.planet-node-outer {
+  fill: none;
+  stroke: var(--brass-soft);
+  stroke-width: 1.6;
+}
+
+.planet-node-core {
+  fill: var(--obsidian-soft);
+  filter: url(#nodeShadow);
+}
+
+.planet-node-reflection {
+  stroke: rgba(244, 240, 232, .4);
+  stroke-linecap: round;
+  stroke-width: 1;
+}
+
+.planet-glyph {
+  fill: var(--ink-inverse);
+  font-size: 15px;
+  font-weight: 760;
+  text-anchor: middle;
+}
+
+.retrograde {
+  fill: var(--copper);
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.center-star {
+  fill: var(--brass);
+  font-size: 22px;
+  text-anchor: middle;
+}
+
+.angle-label {
+  fill: var(--brass-soft);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-anchor: middle;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 10px auto 4px;
+  color: var(--brass-soft);
+  font-size: .72rem;
+}
+
+.chart-legend span {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  gap: 7px;
+}
+
+.chart-legend i {
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  border-radius: 4px;
+  background: var(--cobalt);
+}
+
+.chart-legend i.conjunction {
+  background: var(--brass);
+}
+
+.chart-legend i.tension {
+  height: 0;
+  border-top: 2px dashed var(--copper);
+  background: none;
+}
+
+.chart-legend i.axis {
+  height: 3px;
+  background: var(--brass-soft);
+}
+
+.placement-table {
+  margin-top: 14px;
+  border-top: 1px solid var(--hairline-inverse);
+  color: var(--ink-inverse);
+  background: transparent;
+  font-size: .76rem;
+}
+
+.placement-table summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  color: var(--brass-soft);
+  cursor: pointer;
+  font-weight: 720;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  padding: 0 4px 12px;
+}
+
+.placement-table table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.placement-table th,
+.placement-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--hairline-inverse);
+  white-space: nowrap;
+}
+
+.placement-table th {
+  color: var(--ink-inverse);
+}
+
+.placement-table td {
+  color: var(--brass-soft);
+}
+
+@media (max-width: 480px) {
+  .chart-legend {
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .chart-observatory-ring,
+  .chart-secondary-ring,
+  .chart-inner-ring,
+  .zodiac-division,
+  .house-line,
+  .planet-node-outer {
+    opacity: 1;
+  }
+
+  .house-number,
+  .zodiac-label,
+  .chart-legend,
+  .placement-table td {
+    color: var(--ink-inverse);
+    fill: var(--ink-inverse);
+  }
+}
