@@ -11,8 +11,12 @@ import { monthSampleDates, summarizePeriodFortune, yearSampleDates, type PeriodF
 import { ResultsPage } from './features/results/ResultsPage';
 import { AppError } from './components/AppError';
 import { EphemerisLoader } from './components/EphemerisLoader';
+import { LanguageSwitch } from './components/LanguageSwitch';
+import { useI18n } from './i18n/I18nProvider';
+import { buildDetailedReading } from './features/readings/buildDetailedReading';
+import type { DetailedReadingModel } from './features/readings/types';
 
-type ResultState = { profile: BirthProfile; chart: NatalChartData; transits: TransitData; fortune: DailyFortune; monthFortune: PeriodFortune; yearFortune: PeriodFortune };
+type ResultState = { profile: BirthProfile; chart: NatalChartData; transits: TransitData; fortune: DailyFortune; monthFortune: PeriodFortune; yearFortune: PeriodFortune; detailedReading: DetailedReadingModel };
 
 async function buildPeriod(chart: NatalChartData, profile: BirthProfile, dates: string[]) {
   const samples: DailyFortune[] = [];
@@ -24,14 +28,15 @@ async function buildPeriod(chart: NatalChartData, profile: BirthProfile, dates: 
 }
 
 export default function App() {
+  const { t } = useI18n();
   const [started, setStarted] = useState(false);
   const [savedProfile, setSavedProfile] = useState(() => loadProfile());
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<null | 'calculation'>(null);
   const [result, setResult] = useState<ResultState | null>(null);
 
   async function handleSubmit(profile: BirthProfile) {
-    setBusy(true); setError('');
+    setBusy(true); setError(null);
     try {
       saveProfile(profile);
       setSavedProfile(profile);
@@ -43,10 +48,11 @@ export default function App() {
       const yearSamples = await buildPeriod(chart, profile, yearSampleDates(date));
       const monthFortune = summarizePeriodFortune('month', date, monthSamples);
       const yearFortune = summarizePeriodFortune('year', date, yearSamples);
-      setResult({ profile, chart, transits, fortune, monthFortune, yearFortune });
+      const detailedReading = buildDetailedReading(chart, transits);
+      setResult({ profile, chart, transits, fortune, monthFortune, yearFortune, detailedReading });
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : '계산 중 예상하지 못한 문제가 발생했습니다.');
+    } catch {
+      setError('calculation');
     } finally { setBusy(false); }
   }
 
@@ -56,21 +62,22 @@ export default function App() {
     <main className="app-shell">
       <div className="afterimage afterimage-one" aria-hidden="true" />
       <div className="afterimage afterimage-two" aria-hidden="true" />
-      <nav className="site-nav" aria-label="주요 메뉴">
-        <div className="wordmark"><span>잔상</span> 별자리 ✦</div>
-        <span className="nav-chip">TROPICAL · PLACIDUS</span>
+      <nav className="site-nav" aria-label={t('nav.primary')}>
+        <div className="wordmark"><span>{t('brand.name')}</span> ✦</div>
+        <span className="nav-chip">{t('nav.system')}</span>
+        <LanguageSwitch />
       </nav>
       {!started && <section className="landing-hero">
-        <p className="eyebrow">THE SKY REMEMBERS YOUR MOMENT</p>
-        <h1>잔상 별자리</h1>
-        <p className="hero-copy">태어난 순간의 별빛은 오늘도 잔상을 남깁니다.</p>
-        <p className="hero-detail">출생 차트와 오늘의 천체 흐름을 한눈에 읽는<br />나만의 별자리 만세력</p>
+        <p className="eyebrow">{t('landing.eyebrow')}</p>
+        <h1>{t('brand.name')}</h1>
+        <p className="hero-copy">{t('landing.copy')}</p>
+        <p className="hero-detail">{t('landing.detail')}</p>
         <button className="primary-button" type="button" onClick={() => setStarted(true)}>
-          나의 별자리 만세력 보기 <span aria-hidden="true">→</span>
+          {t('landing.cta')} <span aria-hidden="true">→</span>
         </button>
       </section>}
       {started && <BirthForm onSubmit={handleSubmit} initialProfile={savedProfile} busy={busy} />}
-      <AppError message={error} onClose={() => setError('')} />
+      <AppError error={error} onClose={() => setError(null)} />
       {busy && <EphemerisLoader />}
       <section className="preview-orbit" aria-hidden="true">
         <div className="orbit-ring orbit-ring-one" />

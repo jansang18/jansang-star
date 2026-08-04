@@ -9,11 +9,16 @@ import type { TransitData } from '../fortune/transits';
 import { ResultsPage } from './ResultsPage';
 import { renderWithI18n } from '../../test/renderWithI18n';
 import { summarizePeriodFortune } from '../fortune/periodFortune';
+import { buildDetailedReading } from '../readings/buildDetailedReading';
 
 const planets = Object.fromEntries(PLANETS.map((planet, index) => [planet.id, { ...planet, longitude: index * 31, latitude: 0, speed: 1, retrograde: false, sign: '사자자리', signDegree: 12, house: (index % 12) + 1 }])) as unknown as Record<PlanetId, PlanetPosition>;
 const chart: NatalChartData = { julianDay: 0, planets, ascendant: 210, midheaven: 120, houses: Array.from({ length: 12 }, (_, index) => index * 30), houseSystem: 'P', timeKnown: true };
 const profile: BirthProfile = { displayName: '김별', date: '1990-08-05', time: '14:30', timeKnown: true, cityId: 'seoul', latitude: 37.56, longitude: 126.97, timeZone: 'Asia/Seoul', disambiguation: 'compatible' };
 const transits = { date: '2026-08-05', chart, aspects: [] } as TransitData;
+const detailedReading = buildDetailedReading(chart, {
+  ...transits,
+  aspects: [{ type: 'trine', from: 'sun', to: 'moon', angle: 120, orb: 1, maxOrb: 7 }],
+});
 const fortune = generateDailyFortune(chart, transits, transits.date);
 const periodSample = (score: number) => ({
   ...fortune,
@@ -32,9 +37,12 @@ const yearFortune = summarizePeriodFortune(
 
 describe('ResultsPage', () => {
   it('shows the full approved vertical result order', () => {
-    renderWithI18n(<ResultsPage profile={profile} chart={chart} transits={transits} fortune={fortune} onEdit={() => {}} />);
-    ['태양·달·상승궁', '오늘의 코스믹 웨더', '행성 배치', '12하우스', '주요 애스펙트', '오늘의 트랜짓', '분야별 오늘 운세', '오늘의 행운']
-      .forEach((title) => expect(screen.getByRole('heading', { name: title })).toBeInTheDocument());
+    renderWithI18n(<ResultsPage profile={profile} chart={chart} transits={transits} fortune={fortune} detailedReading={detailedReading} onEdit={() => {}} />);
+    const headings = ['태양·달·상승궁', '오늘의 코스믹 웨더', '출생 차트 상세 풀이', '행성 배치', '12하우스', '주요 애스펙트', '오늘의 트랜짓', '분야별 오늘 운세', '오늘의 행운']
+      .map((title) => screen.getByRole('heading', { name: title }));
+    headings.slice(1).forEach((heading, index) => {
+      expect(headings[index].compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
     expect(screen.getAllByText('주요 흐름이 비교적 고르다').length).toBeGreaterThan(0);
     expect(screen.getByText(/본 아이보리|샴페인 골드|딥 코발트|코퍼|세이지|스모크 블루|펄 그레이/)).toBeInTheDocument();
   });
@@ -48,6 +56,7 @@ describe('ResultsPage', () => {
       fortune={fortune}
       monthFortune={monthFortune}
       yearFortune={yearFortune}
+      detailedReading={detailedReading}
       onEdit={() => {}}
     />);
     const page = within(container);
@@ -68,5 +77,56 @@ describe('ResultsPage', () => {
     expect(page.getByRole('heading', { name: '분기별 큰 흐름' })).toBeInTheDocument();
     expect(page.getAllByRole('button', { name: /분기 큰 흐름/ })).toHaveLength(4);
     expect(page.getAllByRole('button', { name: /의 월간 흐름/ })).toHaveLength(12);
+  });
+
+  it('renders all specified English result section titles', () => {
+    const { container } = renderWithI18n(<ResultsPage
+      profile={profile}
+      chart={chart}
+      transits={transits}
+      fortune={fortune}
+      monthFortune={monthFortune}
+      yearFortune={yearFortune}
+      detailedReading={detailedReading}
+      onEdit={() => {}}
+    />, 'en');
+    const page = within(container);
+
+    [
+      'Sun, Moon & Rising',
+      'Detailed natal reading',
+      'Planetary placements',
+      'The twelve houses',
+      'Major natal aspects',
+      'Transits to natal',
+      'Five areas today',
+      "Today's lucky guide",
+    ].forEach((title) => expect(page.getByRole('heading', { name: title })).toBeInTheDocument());
+    expect(page.getByRole('button', { name: 'Edit birth information' })).toBeInTheDocument();
+  });
+
+  it('preserves selected period and expanded chapter when locale changes', async () => {
+    const user = userEvent.setup();
+    const { container } = renderWithI18n(<ResultsPage
+      profile={profile}
+      chart={chart}
+      transits={transits}
+      fortune={fortune}
+      monthFortune={monthFortune}
+      yearFortune={yearFortune}
+      detailedReading={detailedReading}
+      onEdit={() => {}}
+    />);
+    const page = within(container);
+
+    await user.click(page.getByRole('tab', { name: '이번 달' }));
+    const koreanBigThree = page.getByTestId('reading-section-bigThree');
+    await user.click(within(koreanBigThree).getByRole('button', { name: /태양/ }));
+    await user.click(page.getByRole('button', { name: 'English' }));
+
+    expect(page.getByRole('tab', { name: 'This month' })).toHaveAttribute('aria-selected', 'true');
+    const englishBigThree = page.getByTestId('reading-section-bigThree');
+    expect(within(englishBigThree).getByRole('button', { name: /Sun/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(page.getByText('김별')).toBeInTheDocument();
   });
 });

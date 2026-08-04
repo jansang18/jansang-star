@@ -1,8 +1,17 @@
-import type { NatalChartData } from '../astrology/types';
-import { degreeLabel } from '../astrology/zodiac';
+import type { NatalChartData, PlanetId } from '../astrology/types';
+import { useI18n } from '../../i18n/I18nProvider';
+import type { TranslationKey } from '../../i18n/translations';
+import { houseLabel, motionName, planetName } from '../../i18n/astrologyTerms';
+import { formatZodiacDegree } from '../../i18n/formatters';
 
-const ROLE: Record<string, string> = { sun: '정체성과 삶의 방향', moon: '감정과 안정 욕구', mercury: '생각과 소통', venus: '사랑과 취향', mars: '행동과 추진력', jupiter: '성장과 기회', saturn: '책임과 성숙', uranus: '변화와 독창성', neptune: '직관과 상상', pluto: '변형과 깊은 힘' };
+const ROLE_KEY: Record<PlanetId, TranslationKey> = {
+  sun: 'placements.role.sun', moon: 'placements.role.moon', mercury: 'placements.role.mercury',
+  venus: 'placements.role.venus', mars: 'placements.role.mars', jupiter: 'placements.role.jupiter',
+  saturn: 'placements.role.saturn', uranus: 'placements.role.uranus', neptune: 'placements.role.neptune',
+  pluto: 'placements.role.pluto',
+};
 
 export function PlacementSection({ chart }: { chart: NatalChartData }) {
-  return <section className="result-section"><div className="section-heading"><div><div className="section-kicker">PLANETARY PLACEMENTS</div><h2>행성 배치</h2></div><p>각 행성이 어느 별자리와 삶의 영역에서 힘을 쓰는지 보여줍니다.</p></div><div className="placement-grid">{Object.values(chart.planets).map((planet) => <article className="placement-card" key={planet.id}><span className="planet-icon">{planet.glyph}</span><div className="placement-main"><small>{planet.nameKo} · {ROLE[planet.id]}</small><h3>{degreeLabel(planet.longitude)}</h3><p>{planet.house ? `${planet.house}하우스에서 이 에너지가 구체적으로 드러납니다.` : '출생시간 미상으로 하우스는 계산하지 않았습니다.'}</p></div>{planet.retrograde && <span className="status-badge">역행</span>}</article>)}</div></section>;
+  const { locale, t } = useI18n();
+  return <section className="result-section"><div className="section-heading"><div><div className="section-kicker">{t('placements.kicker')}</div><h2>{t('placements.title')}</h2></div><p>{t('placements.intro')}</p></div><div className="placement-grid">{Object.values(chart.planets).map((planet) => <article className="placement-card" key={planet.id}><span className="planet-icon">{planet.glyph}</span><div className="placement-main"><small>{planetName(planet.id, locale)} · {t(ROLE_KEY[planet.id])}</small><h3>{formatZodiacDegree(planet.longitude, locale)}</h3><p>{planet.house ? t('placements.house', { house: houseLabel(planet.house, locale) }) : t('placements.houseUnknown')}</p></div>{planet.retrograde && <span className="status-badge">{motionName('retrograde', locale)}</span>}</article>)}</div></section>;
 }
