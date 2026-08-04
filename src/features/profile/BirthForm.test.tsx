@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider, useI18n } from '../../i18n/I18nProvider';
+import { LanguageSwitch } from '../../components/LanguageSwitch';
 import { BirthForm } from './BirthForm';
 
 afterEach(cleanup);
@@ -44,6 +45,27 @@ describe('BirthForm', () => {
     await user.click(screen.getByRole('button', { name: 'English' }));
     expect(screen.getByLabelText('Name or nickname')).toHaveValue('민아');
     expect(screen.getByLabelText('Date of birth')).toHaveValue('1990-08-05');
+  });
+
+  it('reaches both locale buttons by Tab and activates them with Enter and Space', async () => {
+    const user = userEvent.setup();
+    render(<I18nProvider initialLocale="ko"><LanguageSwitch /><BirthForm onSubmit={() => {}} /></I18nProvider>);
+
+    await user.tab();
+    expect(screen.getByRole('button', { name: '한국어' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: '한국어' })).toHaveAttribute('aria-pressed', 'true');
+
+    await user.tab();
+    const english = screen.getByRole('button', { name: 'English' });
+    expect(english).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(english).toHaveAttribute('aria-pressed', 'true');
+
+    await user.tab({ shift: true });
+    const korean = screen.getByRole('button', { name: '한국어' });
+    expect(korean).toHaveFocus();
+    await user.keyboard(' ');
+    expect(korean).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('finds a city by its English name', async () => {

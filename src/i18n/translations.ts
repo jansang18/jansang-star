@@ -1,4 +1,5 @@
 import type { Locale, TranslationParams } from './types';
+import { safeAuthoredCopy } from './authoredCopy';
 
 const ko = {
   'brand.name': '잔상 별자리',
@@ -241,7 +242,7 @@ const en: Record<TranslationKey, string> = {
 export const TRANSLATIONS = { ko, en };
 
 export function translate(locale: Locale, key: TranslationKey, params?: TranslationParams): string {
-  return TRANSLATIONS[locale][key].replace(/\{([a-zA-Z0-9_]+)\}/g, (token, parameterName: string) => {
+  return safeAuthoredCopy(locale, TRANSLATIONS[locale][key]).replace(/\{([a-zA-Z0-9_]+)\}/g, (token, parameterName: string) => {
     const value = params?.[parameterName];
     if (value !== undefined) return String(value);
     if (import.meta.env.DEV) throw new Error(`Missing translation parameter: ${parameterName}`);

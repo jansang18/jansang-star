@@ -1,6 +1,6 @@
-import { screen, within } from '@testing-library/react';
+import { cleanup, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { PLANETS } from '../astrology/constants';
 import type { NatalChartData, PlanetId, PlanetPosition } from '../astrology/types';
 import type { BirthProfile } from '../profile/types';
@@ -34,6 +34,8 @@ const yearFortune = summarizePeriodFortune(
   transits.date,
   [42, 51, 59, 64, 70, 75, 81, 77, 68, 62, 56, 49].map(periodSample),
 );
+
+afterEach(cleanup);
 
 describe('ResultsPage', () => {
   it('shows the full approved vertical result order', () => {
@@ -128,5 +130,61 @@ describe('ResultsPage', () => {
     const englishBigThree = page.getByTestId('reading-section-bigThree');
     expect(within(englishBigThree).getByRole('button', { name: /Sun/ })).toHaveAttribute('aria-expanded', 'true');
     expect(page.getByText('김별')).toBeInTheDocument();
+  });
+
+  it('operates period tabs and reading chapters from the keyboard with current ARIA state', async () => {
+    const user = userEvent.setup();
+    const { container } = renderWithI18n(<ResultsPage
+      profile={profile}
+      chart={chart}
+      transits={transits}
+      fortune={fortune}
+      monthFortune={monthFortune}
+      yearFortune={yearFortune}
+      detailedReading={detailedReading}
+      onEdit={() => {}}
+    />);
+    const page = within(container);
+    const monthTab = page.getByRole('tab', { name: '이번 달' });
+
+    for (let step = 0; step < 6; step += 1) await user.tab();
+    expect(monthTab).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(monthTab).toHaveAttribute('aria-selected', 'true');
+    expect(page.getByRole('tab', { name: '오늘' })).toHaveAttribute('aria-selected', 'false');
+
+    await user.tab({ shift: true });
+    const todayTab = page.getByRole('tab', { name: '오늘' });
+    expect(todayTab).toHaveFocus();
+    await user.keyboard(' ');
+    expect(todayTab).toHaveAttribute('aria-selected', 'true');
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    const firstChapter = within(page.getByTestId('reading-section-bigThree')).getByRole('button', { name: '태양' });
+    expect(firstChapter).toHaveFocus();
+    expect(firstChapter).toHaveAttribute('aria-expanded', 'false');
+    await user.keyboard(' ');
+    expect(firstChapter).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('labels the chart SVG and its alternative table with a caption and column headers', () => {
+    const { container } = renderWithI18n(<ResultsPage
+      profile={profile}
+      chart={chart}
+      transits={transits}
+      fortune={fortune}
+      detailedReading={detailedReading}
+      onEdit={() => {}}
+    />);
+    const page = within(container);
+    const chartImage = page.getByRole('img', { name: '출생 차트 원형 도표' });
+    expect(chartImage.querySelector('title')).toHaveTextContent('출생 차트 원형 도표');
+
+    const table = page.getByRole('table', { name: '행성 배치표' });
+    expect(table.querySelector('caption')).toHaveTextContent('행성 배치표');
+    expect(within(table).getAllByRole('columnheader').map((header) => header.textContent))
+      .toEqual(['행성', '별자리 위치', '하우스', '상태']);
+    expect(within(table).getAllByRole('rowheader')).toHaveLength(10);
   });
 });

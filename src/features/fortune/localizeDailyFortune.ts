@@ -1,6 +1,7 @@
 import { aspectName, categoryName, planetName } from '../../i18n/astrologyTerms';
 import { formatLocaleNumber } from '../../i18n/numberFormat';
 import type { Locale } from '../../i18n/types';
+import { safeAuthoredCopy } from '../../i18n/authoredCopy';
 import type { Aspect } from './aspects';
 import { DAILY_FORTUNE_COPY_EN } from './copy.en';
 import { DAILY_FORTUNE_COPY_KO, type DailyFortuneCopy } from './copy.ko';
@@ -49,35 +50,35 @@ function localizedCategory(
   const label = categoryName(category, locale);
   const signals = model.evidence.map((aspect) => signalFor(aspect, locale));
   const evidence = signals[0]
-    ? copy.evidence.withAspect(label, signals[0])
-    : copy.evidence.neutral(label);
+    ? safeAuthoredCopy(locale, copy.evidence?.withAspect, label, signals[0])
+    : safeAuthoredCopy(locale, copy.evidence?.neutral, label);
 
   if (category === 'overall') {
-    const summaryOptions = copy.overall.summaries[model.band];
-    const summary = summaryOptions[model.variant % summaryOptions.length];
+    const summaryOptions = copy.overall?.summaries?.[model.band];
+    const summary = safeAuthoredCopy(locale, summaryOptions?.[model.variant % Math.max(summaryOptions?.length ?? 0, 1)]);
     const paragraphs = [
       summary,
       evidence,
-      copy.overall.experience[model.band],
-      copy.overall.morning[model.band],
-      copy.overall.afternoon[model.band],
-      copy.overall.caution[model.band],
-      copy.overall.action[model.band],
+      safeAuthoredCopy(locale, copy.overall?.experience?.[model.band]),
+      safeAuthoredCopy(locale, copy.overall?.morning?.[model.band]),
+      safeAuthoredCopy(locale, copy.overall?.afternoon?.[model.band]),
+      safeAuthoredCopy(locale, copy.overall?.caution?.[model.band]),
+      safeAuthoredCopy(locale, copy.overall?.action?.[model.band]),
     ];
-    return { label, score: model.score, summary, paragraphs, signals: signals.length ? signals : [copy.evidence.neutralSignal] };
+    return { label, score: model.score, summary, paragraphs, signals: signals.length ? signals : [safeAuthoredCopy(locale, copy.evidence?.neutralSignal)] };
   }
 
-  const focused = copy.focused[category];
-  const summaryOptions = focused.summaries[model.band];
-  const summary = summaryOptions[model.variant % summaryOptions.length];
+  const focused = copy.focused?.[category];
+  const summaryOptions = focused?.summaries?.[model.band];
+  const summary = safeAuthoredCopy(locale, summaryOptions?.[model.variant % Math.max(summaryOptions?.length ?? 0, 1)]);
   const paragraphs = [
     summary,
     evidence,
-    focused.opportunity[model.band],
-    focused.caution[model.band],
-    focused.action[model.band],
+    safeAuthoredCopy(locale, focused?.opportunity?.[model.band]),
+    safeAuthoredCopy(locale, focused?.caution?.[model.band]),
+    safeAuthoredCopy(locale, focused?.action?.[model.band]),
   ];
-  return { label, score: model.score, summary, paragraphs, signals: signals.length ? signals : [copy.evidence.neutralSignal] };
+  return { label, score: model.score, summary, paragraphs, signals: signals.length ? signals : [safeAuthoredCopy(locale, copy.evidence?.neutralSignal)] };
 }
 
 function localizedHour(hour: number, locale: Locale): string {
@@ -97,13 +98,13 @@ export function localizeDailyFortune(model: DailyFortune, locale: Locale): Local
   return {
     date: model.date,
     overallScore: model.overallScore,
-    headline: copy.headlines[model.categories.overall.band],
+    headline: safeAuthoredCopy(locale, copy.headlines?.[model.categories.overall.band]),
     categories,
     lucky: {
-      color: copy.colors[model.lucky.colorIndex],
+      color: safeAuthoredCopy(locale, copy.colors?.[model.lucky.colorIndex]),
       number: model.lucky.number,
       time: localizedHour(model.lucky.hour, locale),
-      advice: copy.advice[model.lucky.adviceBand],
+      advice: safeAuthoredCopy(locale, copy.advice?.[model.lucky.adviceBand]),
     },
     evidenceIds: CATEGORY_KEYS.flatMap((category) => model.categories[category].evidence.map((aspect) => evidenceId(category, aspect))),
   };

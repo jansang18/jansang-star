@@ -9,6 +9,7 @@ import {
 } from '../../i18n/astrologyTerms';
 import { formatLocaleNumber } from '../../i18n/numberFormat';
 import type { Locale } from '../../i18n/types';
+import { safeAuthoredCopy } from '../../i18n/authoredCopy';
 import type { PlanetId } from '../astrology/types';
 import type { AspectType } from '../fortune/aspects';
 import { READING_COPY_EN } from './copy.en';
@@ -107,7 +108,7 @@ function evidenceId(evidence: ReadingEvidence): string {
 
 function renderBlock(block: ReadingBlock, locale: Locale): LocalizedReadingBlock {
   const copy = locale === 'ko' ? READING_COPY_KO : READING_COPY_EN;
-  const sentences = block.sentences.map(({ key, params }) => copy[key](params));
+  const sentences = block.sentences.map(({ key, params }) => safeAuthoredCopy(locale, copy[key], params));
   return {
     id: block.id,
     title: blockTitle(block, locale),
@@ -135,7 +136,7 @@ export function renderDetailedReading(model: DetailedReadingModel, locale: Local
     })),
     notices: model.unavailable.map((subject) => {
       const copy = locale === 'ko' ? READING_COPY_KO : READING_COPY_EN;
-      return copy[`unavailable.${subject}`]({});
+      return safeAuthoredCopy(locale, copy[`unavailable.${subject}`], {});
     }),
     evidenceIds: visibleChapters.flatMap(({ blocks }) => blocks.flatMap((block) => block.evidence.map(evidenceId))),
   };

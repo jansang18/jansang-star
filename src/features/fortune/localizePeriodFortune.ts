@@ -2,6 +2,7 @@ import { categoryName } from '../../i18n/astrologyTerms';
 import { formatLocalDate, formatPeriodLabel } from '../../i18n/formatters';
 import { formatLocaleNumber } from '../../i18n/numberFormat';
 import type { Locale } from '../../i18n/types';
+import { safeAuthoredCopy } from '../../i18n/authoredCopy';
 import type { FortuneCategory } from './rules';
 import { PERIOD_COPY_EN } from './periodCopy.en';
 import { PERIOD_COPY_KO, type PeriodCopy } from './periodCopy.ko';
@@ -71,6 +72,7 @@ function directionFor(first: number, last: number): 'up' | 'down' | 'even' {
 
 export function localizePeriodFortune(model: PeriodFortune, locale: Locale): LocalizedPeriodFortune {
   const copy = copyFor(locale);
+  const authored = (value: unknown, ...params: unknown[]) => safeAuthoredCopy(locale, value, ...params);
   const label = formatPeriodLabel(model.period, model.anchorDate, locale);
   const overallTone = toneFor(model.overallScore);
   const timeline: LocalizedPeriodPoint[] = model.timeline.map((point) => ({
@@ -88,54 +90,54 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
   })) as Record<FortuneCategory, LocalizedPeriodCategory>;
   const categoryStrategies = Object.fromEntries(CATEGORY_KEYS.map((category) => {
     const { label: categoryLabel, score, tone } = categories[category];
-    const localizedTone = copy.toneLabels[tone];
+    const localizedTone = authored(copy.toneLabels?.[tone]);
     return [category, [
-      copy.strategy.intensity(categoryLabel, scoreText(score, locale), localizedTone),
-      copy.strategy.opportunity(categoryLabel, localizedTone),
-      copy.strategy.caution(categoryLabel, localizedTone),
-      copy.strategy.action(categoryLabel, localizedTone),
+      authored(copy.strategy?.intensity, categoryLabel, scoreText(score, locale), localizedTone),
+      authored(copy.strategy?.opportunity, categoryLabel, localizedTone),
+      authored(copy.strategy?.caution, categoryLabel, localizedTone),
+      authored(copy.strategy?.action, categoryLabel, localizedTone),
     ]];
   })) as Record<FortuneCategory, string[]>;
 
   const overview = [
-    copy.overview.overall(label, scoreText(model.overallScore, locale), copy.toneLabels[overallTone]),
-    copy.overview.strongestCategory(strongestCategoryLabel, scoreText(model.categories[strongestCategory], locale)),
-    copy.overview.softestCategory(categoryName(softestCategory, locale), scoreText(model.categories[softestCategory], locale)),
-    copy.overview.risingWindow(strongestPoint.label, scoreText(strongestPoint.score, locale)),
-    copy.overview.cautionWindow(softestPoint.label, scoreText(softestPoint.score, locale)),
+    authored(copy.overview?.overall, label, scoreText(model.overallScore, locale), authored(copy.toneLabels?.[overallTone])),
+    authored(copy.overview?.strongestCategory, strongestCategoryLabel, scoreText(model.categories[strongestCategory], locale)),
+    authored(copy.overview?.softestCategory, categoryName(softestCategory, locale), scoreText(model.categories[softestCategory], locale)),
+    authored(copy.overview?.risingWindow, strongestPoint.label, scoreText(strongestPoint.score, locale)),
+    authored(copy.overview?.cautionWindow, softestPoint.label, scoreText(softestPoint.score, locale)),
   ];
 
   if (model.period === 'year') {
     const firstHalfScore = average(model.timeline.slice(0, 6).map((point) => point.score));
     const secondHalfScore = average(model.timeline.slice(6).map((point) => point.score));
     overview.push(
-      copy.overview.firstHalf(scoreText(firstHalfScore, locale), copy.toneLabels[toneFor(firstHalfScore)]),
-      copy.overview.secondHalf(scoreText(secondHalfScore, locale), copy.toneLabels[toneFor(secondHalfScore)]),
+      authored(copy.overview?.firstHalf, scoreText(firstHalfScore, locale), authored(copy.toneLabels?.[toneFor(firstHalfScore)])),
+      authored(copy.overview?.secondHalf, scoreText(secondHalfScore, locale), authored(copy.toneLabels?.[toneFor(secondHalfScore)])),
     );
   }
 
   overview.push(
-    copy.overview.rhythm(strongestPoint.label, softestPoint.label),
-    copy.overview.action(strongestCategoryLabel, strongestPoint.label),
+    authored(copy.overview?.rhythm, strongestPoint.label, softestPoint.label),
+    authored(copy.overview?.action, strongestCategoryLabel, strongestPoint.label),
   );
 
-  const segmentCopy = copy.segment[model.period];
+  const segmentCopy = copy.segment?.[model.period];
   const segments = timeline.map((point) => {
-    const localizedTone = copy.toneLabels[point.tone];
+    const localizedTone = authored(copy.toneLabels?.[point.tone]);
     const score = scoreText(point.score, locale);
     return {
       id: `${model.period}-segment-${point.date}`,
       label: point.label,
-      title: segmentCopy.title(point.label),
-      summary: segmentCopy.summary(point.label, score, localizedTone),
+      title: authored(segmentCopy?.title, point.label),
+      summary: authored(segmentCopy?.summary, point.label, score, localizedTone),
       score: point.score,
       tone: point.tone,
       paragraphs: [
-        segmentCopy.experience(point.label, score, localizedTone),
-        segmentCopy.use(point.label, localizedTone),
-        segmentCopy.caution(point.label, localizedTone),
+        authored(segmentCopy?.experience, point.label, score, localizedTone),
+        authored(segmentCopy?.use, point.label, localizedTone),
+        authored(segmentCopy?.caution, point.label, localizedTone),
       ],
-      evidenceLabels: [copy.evidence(point.label, score)],
+      evidenceLabels: [authored(copy.evidence, point.label, score)],
     };
   });
 
@@ -144,22 +146,22 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
       const points = timeline.slice(index * 3, index * 3 + 3);
       const score = average(points.map((point) => point.score));
       const tone = toneFor(score);
-      const quarterLabel = copy.quarter.label(index + 1);
-      const localizedTone = copy.toneLabels[tone];
+      const quarterLabel = authored(copy.quarter?.label, index + 1);
+      const localizedTone = authored(copy.toneLabels?.[tone]);
       return {
         id: `year-quarter-${index + 1}`,
         label: quarterLabel,
-        title: copy.quarter.title(quarterLabel),
-        summary: copy.quarter.summary(quarterLabel, scoreText(score, locale), localizedTone),
+        title: authored(copy.quarter?.title, quarterLabel),
+        summary: authored(copy.quarter?.summary, quarterLabel, scoreText(score, locale), localizedTone),
         score,
         tone,
         paragraphs: [
-          copy.quarter.flow(quarterLabel, scoreText(score, locale), localizedTone),
-          copy.quarter.focus(quarterLabel, strongestCategoryLabel),
-          copy.quarter.turning(quarterLabel, directionFor(points[0].score, points[2].score)),
-          copy.quarter.action(quarterLabel, strongestCategoryLabel, localizedTone),
+          authored(copy.quarter?.flow, quarterLabel, scoreText(score, locale), localizedTone),
+          authored(copy.quarter?.focus, quarterLabel, strongestCategoryLabel),
+          authored(copy.quarter?.turning, quarterLabel, directionFor(points[0].score, points[2].score)),
+          authored(copy.quarter?.action, quarterLabel, strongestCategoryLabel, localizedTone),
         ],
-        evidenceLabels: points.map((point) => copy.evidence(point.label, scoreText(point.score, locale))),
+        evidenceLabels: points.map((point) => authored(copy.evidence, point.label, scoreText(point.score, locale))),
       };
     })
     : [];
@@ -167,7 +169,7 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
   return {
     period: model.period,
     label,
-    headline: copy.headlines[model.period][overallTone](label),
+    headline: authored(copy.headlines?.[model.period]?.[overallTone], label),
     overallScore: model.overallScore,
     categories,
     overview,
@@ -175,8 +177,27 @@ export function localizePeriodFortune(model: PeriodFortune, locale: Locale): Loc
     timeline,
     segments,
     quarters,
-    opportunity: copy.window.opportunity(strongestPoint.label, scoreText(strongestPoint.score, locale)),
-    caution: copy.window.caution(softestPoint.label, scoreText(softestPoint.score, locale)),
-    ui: copy.ui,
+    opportunity: authored(copy.window?.opportunity, strongestPoint.label, scoreText(strongestPoint.score, locale)),
+    caution: authored(copy.window?.caution, softestPoint.label, scoreText(softestPoint.score, locale)),
+    ui: {
+      kicker: {
+        month: authored(copy.ui?.kicker?.month),
+        year: authored(copy.ui?.kicker?.year),
+      },
+      description: {
+        month: authored(copy.ui?.description?.month),
+        year: authored(copy.ui?.description?.year),
+      },
+      overview: authored(copy.ui?.overview),
+      strategies: authored(copy.ui?.strategies),
+      segments: {
+        month: authored(copy.ui?.segments?.month),
+        year: authored(copy.ui?.segments?.year),
+      },
+      quarters: authored(copy.ui?.quarters),
+      opportunity: authored(copy.ui?.opportunity),
+      caution: authored(copy.ui?.caution),
+      chartSuffix: authored(copy.ui?.chartSuffix),
+    },
   };
 }

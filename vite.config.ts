@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     css: true,
+    exclude: ['**/.worktrees/**', '**/node_modules/**', '**/dist/**'],
   },
   };
 });
