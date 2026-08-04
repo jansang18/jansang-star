@@ -1,7 +1,9 @@
 import { ZODIAC_GLYPHS, ZODIAC_SIGNS } from '../astrology/constants';
 import type { NatalChartData } from '../astrology/types';
-import { degreeLabel } from '../astrology/zodiac';
 import { natalAspects } from '../fortune/aspects';
+import { chartText, houseLabel, motionName, planetName } from '../../i18n/astrologyTerms';
+import { formatZodiacDegree } from '../../i18n/formatters';
+import { useI18n } from '../../i18n/I18nProvider';
 import { displayAngle, polarPoint } from './geometry';
 import './NatalChart.css';
 
@@ -9,6 +11,7 @@ type Props = { chart: NatalChartData };
 const ASPECT_COLORS = { conjunction: '#7b6ce0', sextile: '#4bb5b2', square: '#ef7697', trine: '#7390e8', opposition: '#e4836c' };
 
 export function NatalChart({ chart }: Props) {
+  const { locale } = useI18n();
   const asc = chart.ascendant ?? 0;
   const planets = Object.values(chart.planets);
   const positions = Object.fromEntries(planets.map((planet, index) => {
@@ -18,8 +21,8 @@ export function NatalChart({ chart }: Props) {
   const aspects = natalAspects(chart).slice(0, 18);
 
   return <div className="natal-chart-wrap">
-    <svg className="natal-chart" viewBox="0 0 360 360" role="img" aria-label="출생 차트 원형 도표">
-      <title>출생 차트 원형 도표</title>
+    <svg className="natal-chart" viewBox="0 0 360 360" role="img" aria-label={chartText('chartTitle', locale)}>
+      <title>{chartText('chartTitle', locale)}</title>
       <defs>
         <radialGradient id="chartGlow"><stop offset="0" stopColor="#17182e" /><stop offset=".65" stopColor="#101124" /><stop offset="1" stopColor="#0b0c1a" /></radialGradient>
         <filter id="softGlow"><feGaussianBlur stdDeviation="5" /></filter>
@@ -58,10 +61,10 @@ export function NatalChart({ chart }: Props) {
       })}
       <circle cx="180" cy="180" r="18" fill="#7365d5" opacity=".16" filter="url(#softGlow)" />
       <text x="180" y="188" className="center-star">✦</text>
-      {chart.ascendant !== undefined && <text x="20" y="184" className="angle-label">ASC</text>}
-      {chart.midheaven !== undefined && (() => { const mc = polarPoint(displayAngle(chart.midheaven, asc), 164); return <text x={180 + mc.x} y={184 + mc.y} className="angle-label">MC</text>; })()}
+      {chart.ascendant !== undefined && <text x="20" y="184" className="angle-label">{chartText('ascendantAbbreviation', locale)}</text>}
+      {chart.midheaven !== undefined && (() => { const mc = polarPoint(displayAngle(chart.midheaven, asc), 164); return <text x={180 + mc.x} y={184 + mc.y} className="angle-label">{chartText('midheavenAbbreviation', locale)}</text>; })()}
     </svg>
-    <div className="chart-legend" aria-label="차트 선 범례"><span><i className="harmony" />조화 흐름</span><span><i className="tension" />긴장 흐름</span><span><i className="axis" />ASC · MC 축</span></div>
-    <details className="placement-table"><summary>행성 배치표 열기</summary><div className="table-scroll"><table aria-label="행성 배치표"><thead><tr><th>행성</th><th>별자리 위치</th><th>하우스</th><th>상태</th></tr></thead><tbody>{planets.map((planet) => <tr key={planet.id}><th>{planet.glyph} {planet.nameKo}</th><td>{degreeLabel(planet.longitude)}</td><td>{planet.house ? `${planet.house}하우스` : '시간 미상'}</td><td>{planet.retrograde ? '역행' : '순행'}</td></tr>)}</tbody></table></div></details>
+    <div className="chart-legend" aria-label={chartText('legend', locale)}><span><i className="harmony" />{chartText('harmony', locale)}</span><span><i className="tension" />{chartText('tension', locale)}</span><span><i className="axis" />{chartText('axis', locale)}</span></div>
+    <details className="placement-table"><summary>{chartText('placementSummary', locale)}</summary><div className="table-scroll"><table aria-label={chartText('placements', locale)}><thead><tr><th>{chartText('planet', locale)}</th><th>{chartText('zodiacPosition', locale)}</th><th>{chartText('house', locale)}</th><th>{chartText('status', locale)}</th></tr></thead><tbody>{planets.map((planet) => <tr key={planet.id}><th>{planet.glyph} {planetName(planet.id, locale)}</th><td>{formatZodiacDegree(planet.longitude, locale)}</td><td>{planet.house ? houseLabel(planet.house, locale) : chartText('unknownTime', locale)}</td><td>{motionName(planet.retrograde ? 'retrograde' : 'direct', locale)}</td></tr>)}</tbody></table></div></details>
   </div>;
 }
