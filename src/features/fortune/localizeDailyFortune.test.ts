@@ -75,4 +75,35 @@ describe('localizeDailyFortune', () => {
     expect(ko.lucky.time).toBe(`${model.lucky.hour}:00`);
     expect(en.lucky.time).toMatch(/^(9|10|11|12|1|2|3|4|5|6|7|8):00 (AM|PM)$/);
   });
+
+  it('hedges Korean high-band relationship, money, and wellbeing claims', () => {
+    const model = generateDailyFortune(chart, transits, '2026-08-05');
+    const highVariant = {
+      ...model,
+      categories: {
+        ...model.categories,
+        love: { ...model.categories.love, band: 'high' as const, variant: 1 },
+        money: { ...model.categories.money, band: 'high' as const, variant: 1 },
+        health: { ...model.categories.health, band: 'high' as const, variant: 1 },
+      },
+    };
+    const ko = localizeDailyFortune(highVariant, 'ko');
+    const rendered = [ko.categories.love.summary, ko.categories.money.summary, ko.categories.health.summary].join(' ');
+
+    expect(ko.categories.love.summary).toContain('친밀감이 자연스럽게 커질 수 있으니');
+    expect(ko.categories.money.summary).toContain('만족스러운 결과로 이어질 수 있으므로');
+    expect(ko.categories.health.summary).toContain('회복 습관을 다시 시작하기 쉬울 수 있으니');
+    expect(rendered).not.toMatch(/친밀감이 자연스럽게 커지므로|만족스러운 결과로 이어지므로|회복력이 살아나니/);
+  });
+
+  it('keeps low-band lucky advice meaning aligned across Korean and English', () => {
+    const model = generateDailyFortune(chart, transits, '2026-08-05');
+    const lowAdvice = { ...model, lucky: { ...model.lucky, adviceBand: 'low' as const } };
+    const ko = localizeDailyFortune(lowAdvice, 'ko');
+    const en = localizeDailyFortune(lowAdvice, 'en');
+
+    expect(ko.lucky.advice).toBe('서둘러 답하기보다 오늘은 휴식과 마음의 여유를 먼저 챙겨 보세요.');
+    expect(ko.lucky.advice).not.toContain('열 번 천천히 호흡');
+    expect(en.lucky.advice).toBe('Let rest and emotional room come before a rushed answer today.');
+  });
 });
