@@ -56,6 +56,25 @@ it('guards accessible contrast, metadata sizing, copy rhythm, wrapping, and pres
   expect(global).toContain("input[type='checkbox']:active");
   expect(global).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*summary:active[\s\S]*transform:\s*none/);
 
+  const reducedMotionStart = global.indexOf('@media (prefers-reduced-motion: reduce)');
+  const reducedMotionEnd = global.indexOf('@media (prefers-reduced-transparency: reduce)');
+  const regularMotion = global.slice(0, reducedMotionStart);
+  const reducedMotion = global.slice(reducedMotionStart, reducedMotionEnd);
+  [
+    "input:not([type]):active",
+    "input[type='text']:active",
+    "input[type='date']:active",
+    "input[type='time']:active",
+    "input[type='number']:active",
+    "input[type='search']:active",
+    "input[role='combobox']:active",
+  ].forEach((selector) => {
+    expect(regularMotion, `regular active feedback misses ${selector}`).toContain(selector);
+    expect(reducedMotion, `reduced-motion reset misses ${selector}`).toContain(selector);
+  });
+  expect(regularMotion).toMatch(/input\[role='combobox'\]:active,[\s\S]*\{\s*transform:\s*scale\(\.98\)/);
+  expect(reducedMotion).toMatch(/input\[role='combobox'\]:active,[\s\S]*\{\s*transform:\s*none/);
+
   const contrastChart = chart.slice(chart.indexOf('@media (prefers-contrast: more)'));
   expect(contrastChart).toMatch(/\.chart-outer-ring,[\s\S]*\.house-line,[\s\S]*\{\s*stroke:\s*var\(--ink-inverse\)/);
   expectRule(contrastChart, '.aspect-underlay', ['stroke: var(--ink-inverse)', 'opacity: 1']);

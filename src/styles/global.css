@@ -34,14 +34,21 @@ summary,
   outline-offset: 3px;
 }
 
-:where(button, summary, select, input[type='checkbox'], [role='option']) {
+:where(button, summary, select, input:not([type]), input[type='text'], input[type='date'], input[type='time'], input[type='number'], input[type='search'], input[type='checkbox'], input[role='combobox'], [role='option']) {
   transition: transform 100ms ease-out, background-color 160ms ease, color 160ms ease;
 }
 
 button:active,
 summary:active,
 select:active,
+input:not([type]):active,
+input[type='text']:active,
+input[type='date']:active,
+input[type='time']:active,
+input[type='number']:active,
+input[type='search']:active,
 input[type='checkbox']:active,
+input[role='combobox']:active,
 [role='option']:active {
   transform: scale(.98);
 }
@@ -351,7 +358,14 @@ input[type='checkbox']:active,
   button:active,
   summary:active,
   select:active,
+  input:not([type]):active,
+  input[type='text']:active,
+  input[type='date']:active,
+  input[type='time']:active,
+  input[type='number']:active,
+  input[type='search']:active,
   input[type='checkbox']:active,
+  input[role='combobox']:active,
   [role='option']:active {
     transform: none;
   }

@@ -8,7 +8,7 @@ import { displayAngle, polarPoint } from './geometry';
 import './NatalChart.css';
 
 type Props = { chart: NatalChartData };
-const ASPECT_COLORS = {
+export const ASPECT_COLORS = {
   conjunction: '#B79A62',
   sextile: '#385A78',
   square: '#9C5544',
