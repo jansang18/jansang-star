@@ -1,0 +1,9 @@
+.superpowers/
+.worktrees/
+work/
+node_modules/
+dist/
+output/
+.playwright-cli/
+.env*
+!.env.example
