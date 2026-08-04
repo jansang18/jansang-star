@@ -6,7 +6,7 @@
 
 **Architecture:** React UI와 순수 TypeScript 점성술 도메인을 분리한다. `swisseph-wasm` 어댑터가 천체·하우스 계산을 담당하고, 애스펙트·트랜짓·문장 조합은 독립된 결정론적 엔진으로 처리한다. 모든 입력과 결과는 브라우저 안에서 계산하고 저장한다.
 
-**Tech Stack:** React 19.2.8, TypeScript 6.0.5, Vite 8.2.0, Vitest 4.1.10, Testing Library 16.3.2, `swisseph-wasm` 0.1.0, `@js-temporal/polyfill` 0.5.1, `vite-plugin-pwa` 1.3.0, SVG, CSS
+**Tech Stack:** React 19.2.8, TypeScript 7.0.2, Vite 8.2.0, Vitest 4.1.10, Testing Library 16.3.2, `swisseph-wasm` 0.1.0, `@js-temporal/polyfill` 0.5.1, `vite-plugin-pwa` 1.3.0, SVG, CSS
 
 ## Global Constraints
 
