@@ -27,6 +27,16 @@ npm run preview -- --host 127.0.0.1 --port 4173
 
 미리보기는 `http://127.0.0.1:4173/jansang-star/`에서 확인합니다. Pages 모드 빌드는 공개 경로 `/jansang-star/`를 기준으로 `dist/`를 생성합니다.
 
+## Offline world-city data
+
+출생도시 검색은 GeoNames `cities15000` 자료를 정제한 오프라인 데이터를 사용합니다. 다음 명령으로 갱신합니다.
+
+```powershell
+npm run cities:build
+```
+
+생성된 `public/data/world-cities.json`은 PWA 캐시와 Android 앱에 함께 포함됩니다. 출처와 라이선스 고지는 `THIRD_PARTY_NOTICES.md`에 기록되어 있습니다.
+
 ## Deployment
 
 GitHub Pages에는 아래 프로젝트 명령으로 배포합니다. `predeploy:pages`가 Pages 모드 빌드를 먼저 실행하고, 고정된 `gh-pages` 6.3.0의 `gh-pages --nojekyll -d dist -b gh-pages` 명령이 Jekyll 처리를 끈 상태로 결과물을 게시합니다.

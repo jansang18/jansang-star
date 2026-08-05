@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => {
       icons: [{ src: `${base}icons/icon.svg`, sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,svg,wasm,data}'],
-      maximumFileSizeToCacheInBytes: 4_000_000,
+      globPatterns: ['**/*.{js,css,html,svg,wasm,data,json}'],
+      maximumFileSizeToCacheInBytes: 6_000_000,
       cleanupOutdatedCaches: true,
       skipWaiting: true,
       clientsClaim: true,

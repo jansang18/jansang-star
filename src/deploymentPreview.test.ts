@@ -147,9 +147,12 @@ describe('Pages preview workflow', () => {
         'manifest.webmanifest',
         'registerSW.js',
         'sw.js',
+        'data/world-cities.json',
         'wasm/swisseph.data',
         'wasm/swisseph.wasm',
       ]));
+      const serviceWorker = await readFile(join(outputRoot, 'sw.js'), 'utf8');
+      expect(serviceWorker).toContain('data/world-cities.json');
       const underscoreChunk = emittedFiles.find((relativePath) =>
         relativePath.split('/').at(-1)?.startsWith('_') && relativePath.endsWith('.js'));
       expect(underscoreChunk, 'Vite underscore-prefixed runtime chunk').toBeDefined();
@@ -166,6 +169,7 @@ describe('Pages preview workflow', () => {
         }
         if (relativePath.endsWith('.js')) expect(contentType, relativePath).toContain('javascript');
         if (relativePath.endsWith('.css')) expect(contentType, relativePath).toContain('text/css');
+        if (relativePath.endsWith('.json')) expect(contentType, relativePath).toContain('application/json');
         if (relativePath.endsWith('.wasm')) expect(contentType, relativePath).toContain('application/wasm');
         if (relativePath.endsWith('.webmanifest')) expect(contentType, relativePath).toContain('application/manifest+json');
       }
