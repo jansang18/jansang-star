@@ -1,10 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dff6ff"/><stop offset=".52" stop-color="#eee8ff"/><stop offset="1" stop-color="#fff0e8"/></linearGradient><filter id="g"><feGaussianBlur stdDeviation="10"/></filter></defs>
-  <rect width="512" height="512" rx="118" fill="url(#bg)"/>
-  <path d="M70 298c126-128 245-145 370-94" fill="none" stroke="#7568db" stroke-width="12" stroke-linecap="round" opacity=".28"/>
-  <path d="M95 325c132-116 245-126 342-81" fill="none" stroke="#63c2ff" stroke-width="8" stroke-linecap="round" opacity=".4" filter="url(#g)"/>
-  <circle cx="260" cy="250" r="115" fill="none" stroke="#7669d9" stroke-width="10"/>
-  <circle cx="260" cy="250" r="76" fill="none" stroke="#a9a0eb" stroke-width="5"/>
-  <path d="m260 170 18 59 60 21-60 19-18 61-20-61-59-19 59-21z" fill="#6558c7"/>
-  <circle cx="380" cy="135" r="11" fill="#fff"/><circle cx="130" cy="170" r="7" fill="#7466d3"/><circle cx="405" cy="360" r="6" fill="#f29abc"/>
+  <defs>
+    <radialGradient id="paper" cx="34%" cy="24%" r="86%">
+      <stop stop-color="#FBF8F1"/>
+      <stop offset=".56" stop-color="#F3EFE7"/>
+      <stop offset="1" stop-color="#E7EEF0"/>
+    </radialGradient>
+    <linearGradient id="brass" x1=".15" y1=".1" x2=".88" y2=".9">
+      <stop stop-color="#D9C59A"/>
+      <stop offset=".48" stop-color="#B79A62"/>
+      <stop offset="1" stop-color="#80683F"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#11100E" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="118" fill="url(#paper)"/>
+  <circle cx="256" cy="256" r="174" fill="none" stroke="#11100E" stroke-width="3" opacity=".16"/>
+  <path d="M74 294C162 171 320 132 438 210" fill="none" stroke="#64777E" stroke-width="9" stroke-linecap="round" opacity=".72"/>
+  <path d="M90 330C201 207 339 185 424 232" fill="none" stroke="url(#brass)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="256" cy="250" r="116" fill="#FBF8F1" stroke="#11100E" stroke-width="10" filter="url(#shadow)"/>
+  <circle cx="256" cy="250" r="82" fill="none" stroke="#B79A62" stroke-width="4"/>
+  <path d="m256 165 18 62 63 23-63 22-18 64-20-64-62-22 62-23z" fill="url(#brass)" stroke="#11100E" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="392" cy="128" r="10" fill="#B79A62"/>
+  <circle cx="116" cy="184" r="7" fill="#64777E"/>
+  <circle cx="408" cy="360" r="6" fill="#11100E"/>
 </svg>
