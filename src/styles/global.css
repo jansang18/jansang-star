@@ -190,6 +190,10 @@ input[role='combobox']:active,
   font-weight: 750;
 }
 
+.primary-button:focus-visible {
+  box-shadow: 0 0 0 2px var(--obsidian), 0 12px 28px rgba(17, 16, 14, .18);
+}
+
 .primary-button:hover {
   background: var(--obsidian-soft);
 }

@@ -9,7 +9,9 @@ function dateForFormatting(isoDate: string): Date {
 }
 
 export function formatZodiacDegree(longitude: number, locale: Locale): string {
-  const normalizedLongitude = ((longitude % 360) + 360) % 360;
+  const normalizedLongitude = longitude >= 0 && longitude < 360
+    ? longitude
+    : ((longitude % 360) + 360) % 360;
   const signIndex = Math.floor(normalizedLongitude / 30);
   const withinSignLongitude = normalizedLongitude - signIndex * 30;
   const signMinutes = Math.floor(withinSignLongitude * 60);

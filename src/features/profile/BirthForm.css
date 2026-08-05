@@ -239,6 +239,10 @@
   font-weight: 780;
 }
 
+.calculate-button:focus-visible {
+  box-shadow: 0 0 0 2px var(--obsidian), 0 14px 30px rgba(17, 16, 14, .16);
+}
+
 .calculate-button:hover {
   background: var(--obsidian-soft);
 }

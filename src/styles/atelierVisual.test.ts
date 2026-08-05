@@ -50,6 +50,13 @@ function tokenColor(name: string): string {
   return match?.[1] ?? '#000000';
 }
 
+function contrastMoreTokenColor(name: string): string {
+  const contrastMore = global.slice(global.indexOf('@media (prefers-contrast: more)'));
+  const match = contrastMore.match(new RegExp(`--${name}:\\s*(#[0-9a-f]{6})`, 'i'));
+  expect(match, `missing prefers-contrast token --${name}`).not.toBeNull();
+  return match?.[1] ?? '#000000';
+}
+
 function relativeLuminance(hex: string): number {
   const channels = hex.slice(1).match(/.{2}/g)?.map((pair) => Number.parseInt(pair, 16) / 255) ?? [];
   const linear = channels.map((channel) => channel <= 0.04045
@@ -61,6 +68,31 @@ function relativeLuminance(hex: string): number {
 function contrastRatio(first: string, second: string): number {
   const luminances = [relativeLuminance(first), relativeLuminance(second)].sort((left, right) => right - left);
   return (luminances[0] + 0.05) / (luminances[1] + 0.05);
+}
+
+function computedFocusedControl(markup: string): {
+  outline: string;
+  outlineOffset: string;
+  boxShadow: string;
+} {
+  const style = document.createElement('style');
+  style.textContent = [tokens, global, birthForm, results].join('\n');
+  const host = document.createElement('div');
+  host.innerHTML = markup;
+  document.head.append(style);
+  document.body.append(host);
+  const control = host.querySelector('button');
+  expect(control, 'missing focus test control').not.toBeNull();
+  control?.focus();
+  const computed = getComputedStyle(control!);
+  const snapshot = {
+    outline: computed.outline,
+    outlineOffset: computed.outlineOffset,
+    boxShadow: computed.boxShadow,
+  };
+  host.remove();
+  style.remove();
+  return snapshot;
 }
 
 it('uses dual-color focus indicators on light and dark surfaces and fully opaque accessible placeholders', () => {
@@ -85,6 +117,50 @@ it('uses dual-color focus indicators on light and dark surfaces and fully opaque
   expect(contrastRatio(tokenColor('obsidian'), tokenColor('paper'))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(tokenColor('ink-inverse'), tokenColor('obsidian'))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(tokenColor('muted'), tokenColor('paper-elevated'))).toBeGreaterThanOrEqual(4.5);
+});
+
+it('preserves the dual focus ring in the computed cascade for every shadowed interactive control', () => {
+  const controls = [
+    {
+      name: 'primary CTA',
+      markup: '<button class="primary-button">Start</button>',
+      existingShadow: '0 12px 28px rgba(17, 16, 14, .18)',
+    },
+    {
+      name: 'calculate button',
+      markup: '<button class="calculate-button">Calculate</button>',
+      existingShadow: '0 14px 30px rgba(17, 16, 14, .16)',
+    },
+    {
+      name: 'active period tab',
+      markup: '<div class="period-selector"><button class="active">Today</button></div>',
+      existingShadow: 'inset 0 1px rgba(255, 255, 255, .42)',
+    },
+  ];
+
+  controls.forEach(({ name, markup, existingShadow }) => {
+    const computed = computedFocusedControl(markup);
+    expect(computed.outline, `${name} loses the light focus boundary`).toBe('2px solid var(--ink-inverse)');
+    expect(computed.outlineOffset, `${name} loses the focus separation`).toBe('3px');
+    expect(computed.boxShadow, `${name} loses the dark focus boundary`).toContain('0 0 0 2px var(--obsidian)');
+    expect(computed.boxShadow, `${name} loses its component shadow`).toContain(existingShadow);
+  });
+
+  expect(contrastRatio(tokenColor('obsidian'), tokenColor('paper-elevated'))).toBeGreaterThanOrEqual(3);
+  expect(contrastRatio(tokenColor('ink-inverse'), tokenColor('obsidian'))).toBeGreaterThanOrEqual(3);
+});
+
+it('keeps placeholder contrast at 4.5:1 in base and simulated prefers-contrast-more states', () => {
+  expectRule(birthForm, '.field input::placeholder', ['color: var(--muted)', 'opacity: 1']);
+  const background = tokenColor('paper-elevated');
+  const states = [
+    ['base', tokenColor('muted')],
+    ['prefers-contrast: more', contrastMoreTokenColor('muted')],
+  ] as const;
+
+  states.forEach(([state, foreground]) => {
+    expect(contrastRatio(foreground, background), `${state} placeholder contrast`).toBeGreaterThanOrEqual(4.5);
+  });
 });
 
 it('guards accessible contrast, metadata sizing, copy rhythm, wrapping, and press feedback', () => {

@@ -28,6 +28,11 @@ describe('formatters', () => {
     expect(formatZodiacDegree(359.999, 'ko')).toBe('물고기자리 29°59′');
   });
 
+  it('preserves an exact positive arcminute without floating-point normalization drift', () => {
+    expect(formatZodiacDegree(1 / 60, 'en')).toBe('Aries 0°01′');
+    expect(formatZodiacDegree(1 / 60, 'ko')).toBe('양자리 0°01′');
+  });
+
   it('routes degrees, padded minutes, and house numbers through locale number formatting', () => {
     const nativeNumberFormat = Intl.NumberFormat;
     const numberFormat = vi.spyOn(Intl, 'NumberFormat').mockImplementation(function (...args: ConstructorParameters<typeof Intl.NumberFormat>) {
