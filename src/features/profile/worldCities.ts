@@ -1,4 +1,5 @@
 import type { Locale } from '../../i18n/types';
+import { CITIES } from './cities';
 import type { City } from './types';
 
 export type WorldCityRecord = readonly [
@@ -40,6 +41,9 @@ const displayCountry = (countryCode: string, locale: Locale) => {
 const toCity = (record: WorldCityRecord): City => {
   const [id, name, asciiName, aliases, countryCode, latitude, longitude, timeZone, population] = record;
   const koreanAlias = aliases.find((alias) => /\p{Script=Hangul}/u.test(alias));
+  const recordNames = [name, asciiName, ...aliases].map(normalize);
+  const curated = CITIES.find((city) => city.timeZone === timeZone && recordNames.includes(normalize(city.nameEn)));
+  if (curated) return { ...curated, countryCode, population };
   return {
     id: `geonames-${id}`,
     nameKo: koreanAlias || name,

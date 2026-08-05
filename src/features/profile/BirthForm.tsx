@@ -22,6 +22,17 @@ export function BirthForm({ onSubmit, initialProfile, busy = false }: Props) {
   const [errors, setErrors] = useState<ReturnType<typeof validateBirthProfile>>({});
   const [custom, setCustom] = useState(initialProfile?.cityId === 'custom');
   const customError = errors.coordinates ?? errors.timeZone;
+  const selectedCity = profile.cityNameKo && profile.cityNameEn ? {
+    id: profile.cityId,
+    nameKo: profile.cityNameKo,
+    nameEn: profile.cityNameEn,
+    countryKo: profile.countryKo ?? profile.countryCode ?? '',
+    countryEn: profile.countryEn ?? profile.countryCode ?? '',
+    countryCode: profile.countryCode,
+    latitude: profile.latitude,
+    longitude: profile.longitude,
+    timeZone: profile.timeZone,
+  } : undefined;
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -41,9 +52,21 @@ export function BirthForm({ onSubmit, initialProfile, busy = false }: Props) {
         <div className="field"><label htmlFor="birth-time">{t('form.time')}</label><div className="input-wrap"><span aria-hidden="true">◷</span><input id="birth-time" type="time" {...bind('time')} disabled={!profile.timeKnown} aria-invalid={!!errors.time} /></div><label className="check-label"><input type="checkbox" checked={!profile.timeKnown} onChange={(event) => setProfile({ ...profile, timeKnown: !event.target.checked })} /> {t('form.unknownTime')}</label>{errors.time && <p className="field-error">{t(VALIDATION_TRANSLATION_KEYS[errors.time])}</p>}</div>
         {!custom && <div className="full"><CityCombobox
           selectedId={profile.cityId}
+          selectedCity={selectedCity}
           error={errors.cityId}
-          onSelect={(city) => setProfile((current) => ({ ...current, cityId: city.id, latitude: city.latitude, longitude: city.longitude, timeZone: city.timeZone }))}
-          onClearSelection={() => setProfile((current) => ({ ...current, cityId: '', latitude: 0, longitude: 0, timeZone: '' }))}
+          onSelect={(city) => setProfile((current) => ({
+            ...current,
+            cityId: city.id,
+            cityNameKo: city.id.startsWith('geonames-') ? city.nameKo : undefined,
+            cityNameEn: city.id.startsWith('geonames-') ? city.nameEn : undefined,
+            countryCode: city.id.startsWith('geonames-') ? city.countryCode : undefined,
+            countryKo: city.id.startsWith('geonames-') ? city.countryKo : undefined,
+            countryEn: city.id.startsWith('geonames-') ? city.countryEn : undefined,
+            latitude: city.latitude,
+            longitude: city.longitude,
+            timeZone: city.timeZone,
+          }))}
+          onClearSelection={() => setProfile((current) => ({ ...current, cityId: '', cityNameKo: undefined, cityNameEn: undefined, countryCode: undefined, countryKo: undefined, countryEn: undefined, latitude: 0, longitude: 0, timeZone: '' }))}
         /></div>}
         <div className="full"><button className="text-button" type="button" onClick={() => { setCustom((value) => !value); if (!custom) setProfile({ ...profile, cityId: 'custom' }); }}>{custom ? t('form.cityReturn') : t('form.custom')}</button></div>
         {custom && <div className="advanced full"><div className="field"><label htmlFor="latitude">{t('form.latitude')}</label><input id="latitude" type="number" step="0.0001" value={profile.latitude} onChange={(event) => setProfile({ ...profile, latitude: Number(event.target.value), cityId: 'custom' })} /></div><div className="field"><label htmlFor="longitude">{t('form.longitude')}</label><input id="longitude" type="number" step="0.0001" value={profile.longitude} onChange={(event) => setProfile({ ...profile, longitude: Number(event.target.value), cityId: 'custom' })} /></div><div className="field full"><label htmlFor="timezone">{t('form.timeZone')}</label><input id="timezone" {...bind('timeZone')} placeholder="Asia/Seoul" /></div>{customError && <p className="field-error full">{t(VALIDATION_TRANSLATION_KEYS[customError])}</p>}</div>}

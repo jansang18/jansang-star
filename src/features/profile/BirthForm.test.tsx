@@ -1,11 +1,30 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { I18nProvider, useI18n } from '../../i18n/I18nProvider';
 import { LanguageSwitch } from '../../components/LanguageSwitch';
 import { BirthForm } from './BirthForm';
 
-afterEach(cleanup);
+const { loadWorldCitiesMock, mockWorldRecords } = vi.hoisted(() => ({
+  loadWorldCitiesMock: vi.fn(),
+  mockWorldRecords: [
+    ['1835848', 'Seoul', 'Seoul', ['서울'], 'KR', 37.566, 126.9784, 'Asia/Seoul', 10349312],
+    ['2643743', 'London', 'London', ['런던'], 'GB', 51.50853, -0.12574, 'Europe/London', 8961989],
+    ['5128581', 'New York City', 'New York City', ['New York', '뉴욕'], 'US', 40.71427, -74.00597, 'America/New_York', 8804190],
+    ['2147714', 'Sydney', 'Sydney', ['시드니'], 'AU', -33.86785, 151.20732, 'Australia/Sydney', 5231147],
+    ['1850147', 'Tokyo', 'Tokyo', ['도쿄'], 'JP', 35.6895, 139.69171, 'Asia/Tokyo', 8336599],
+    ['3448439', 'São Paulo', 'Sao Paulo', ['상파울루'], 'BR', -23.5475, -46.63611, 'America/Sao_Paulo', 12400232],
+    ['2988507', 'Paris', 'Paris', ['파리'], 'FR', 48.85341, 2.3488, 'Europe/Paris', 2138551],
+  ] as const,
+}));
+
+vi.mock('./worldCities', async () => {
+  const actual = await vi.importActual<typeof import('./worldCities')>('./worldCities');
+  return { ...actual, loadWorldCities: loadWorldCitiesMock };
+});
+
+beforeEach(() => loadWorldCitiesMock.mockResolvedValue(mockWorldRecords));
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
 function LocaleProbeButton() {
   const { setLocale } = useI18n();
@@ -79,6 +98,38 @@ describe('BirthForm', () => {
     const city = screen.getByRole('combobox', { name: '출생지역' });
     await user.type(city, 'Seoul');
     expect(screen.getByRole('option', { name: /Seoul/ })).toBeInTheDocument();
+  });
+
+  it('loads a globally mixed English list and persists the selected city, country, coordinates, and timezone', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<I18nProvider initialLocale="en"><BirthForm onSubmit={onSubmit} /></I18nProvider>);
+    await user.type(screen.getByLabelText('Name or nickname'), 'Mina');
+    await user.type(screen.getByLabelText('Date of birth'), '19900805');
+    const city = screen.getByRole('combobox', { name: 'Birth city' });
+
+    await user.click(city);
+    const options = await screen.findAllByRole('option');
+    expect(new Set(options.slice(0, 6).map((option) => option.textContent?.split(' · ')[0]))).toEqual(new Set([
+      'Sao PauloBrazil', 'SeoulSouth Korea', 'LondonUnited Kingdom', 'New YorkUnited States', 'TokyoJapan', 'SydneyAustralia',
+    ]));
+
+    await user.clear(city);
+    await user.type(city, 'Sao Paulo');
+    const saoPaulo = await screen.findByRole('option', { name: /Sao Paulo.*Brazil.*America\/Sao_Paulo/ });
+    await user.click(saoPaulo);
+    await user.click(screen.getByRole('button', { name: 'Calculate my natal chart' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      cityId: 'geonames-3448439',
+      cityNameKo: '상파울루',
+      cityNameEn: 'Sao Paulo',
+      countryCode: 'BR',
+      countryEn: 'Brazil',
+      latitude: -23.5475,
+      longitude: -46.63611,
+      timeZone: 'America/Sao_Paulo',
+    }));
   });
 
   it('links the combobox to its active option and commits that option with ArrowDown and Enter', async () => {

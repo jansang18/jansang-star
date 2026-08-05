@@ -26,7 +26,7 @@ describe('world city search', () => {
   });
 
   it('searches English, Korean, ASCII, country, country code, and IANA timezone fields', () => {
-    expect(searchWorldCities(records, 'London', 'en')[0]?.id).toBe('geonames-2643743');
+    expect(searchWorldCities(records, 'London', 'en')[0]?.id).toBe('london');
     expect(searchWorldCities(records, '런던', 'ko')[0]?.nameKo).toBe('런던');
     expect(searchWorldCities(records, 'Sao Paulo', 'en')[0]?.nameEn).toBe('Sao Paulo');
     expect(searchWorldCities(records, 'United Kingdom', 'en')[0]?.countryCode).toBe('GB');

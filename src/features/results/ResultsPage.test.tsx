@@ -107,6 +107,32 @@ describe('ResultsPage', () => {
     expect(page.getByRole('button', { name: 'Edit birth information' })).toBeInTheDocument();
   });
 
+  it('shows a persisted global city name instead of reducing it to coordinates', () => {
+    const globalProfile: BirthProfile = {
+      ...profile,
+      cityId: 'geonames-3448439',
+      cityNameKo: '상파울루',
+      cityNameEn: 'Sao Paulo',
+      countryCode: 'BR',
+      countryKo: '브라질',
+      countryEn: 'Brazil',
+      latitude: -23.5475,
+      longitude: -46.63611,
+      timeZone: 'America/Sao_Paulo',
+    };
+    const { container } = renderWithI18n(<ResultsPage
+      profile={globalProfile}
+      chart={chart}
+      transits={transits}
+      fortune={fortune}
+      detailedReading={detailedReading}
+      onEdit={() => {}}
+    />, 'en');
+
+    expect(within(container).getByText(/Sao Paulo/)).toBeInTheDocument();
+    expect(within(container).queryByText(/-23\.55, -46\.64/)).not.toBeInTheDocument();
+  });
+
   it('preserves selected period and expanded chapter when locale changes', async () => {
     const user = userEvent.setup();
     const { container } = renderWithI18n(<ResultsPage

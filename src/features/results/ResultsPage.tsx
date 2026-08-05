@@ -41,7 +41,8 @@ export function ResultsPage({ profile, chart, transits, fortune, monthFortune, y
   const [period, setPeriod] = useState<Period>('today');
   const periodTabRefs = useRef<Record<Period, HTMLButtonElement | null>>({ today: null, month: null, year: null });
   const city = CITIES.find((item) => item.id === profile.cityId);
-  const localizedCity = city ? cityName(city, locale) : `${profile.latitude.toFixed(2)}, ${profile.longitude.toFixed(2)}`;
+  const storedCityName = locale === 'ko' ? profile.cityNameKo : profile.cityNameEn;
+  const localizedCity = city ? cityName(city, locale) : storedCityName || `${profile.latitude.toFixed(2)}, ${profile.longitude.toFixed(2)}`;
   const dailyView = useMemo(() => localizeDailyFortune(fortune, locale), [fortune, locale]);
   const monthView = useMemo(() => monthFortune ? localizePeriodFortune(monthFortune, locale) : undefined, [monthFortune, locale]);
   const yearView = useMemo(() => yearFortune ? localizePeriodFortune(yearFortune, locale) : undefined, [yearFortune, locale]);
