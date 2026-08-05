@@ -10,6 +10,11 @@ export type BirthProfile = {
   longitude: number;
   timeZone: string;
   disambiguation: TimeDisambiguation;
+  cityNameKo?: string;
+  cityNameEn?: string;
+  countryCode?: string;
+  countryKo?: string;
+  countryEn?: string;
 };
 
 export type City = {
@@ -18,6 +23,8 @@ export type City = {
   nameEn: string;
   countryKo: string;
   countryEn: string;
+  countryCode?: string;
+  population?: number;
   latitude: number;
   longitude: number;
   timeZone: string;
