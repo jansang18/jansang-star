@@ -1,21 +1,38 @@
 import chart from '../features/chart/NatalChart.css?raw';
 import birthForm from '../features/profile/BirthForm.css?raw';
 import results from '../features/results/results.css?raw';
+import indexHtml from '../../index.html?raw';
+import viteConfig from '../../vite.config.ts?raw';
 import global from './global.css?raw';
 import tokens from './tokens.css?raw';
 import { expect, it } from 'vitest';
 
+const legacyPurples = ['#6f62d4', '#a99bff', '#8171ed', '#7b6ce0', '#ef7697'];
+
 it('uses only the approved atelier foundation and one content rail', () => {
-  const css = [tokens, global, results, chart].join('\n').toLowerCase();
+  const css = [tokens, global, birthForm, results, chart].join('\n').toLowerCase();
 
   ['#f3efe7', '#11100e', '#b79a62', '#d2c29f', '#385a78', '#9c5544'].forEach((color) =>
     expect(css).toContain(color),
   );
-  ['#a99bff', '#8171ed', '#7b6ce0', '#ef7697'].forEach((color) =>
+  legacyPurples.forEach((color) =>
     expect(css).not.toContain(color),
   );
   expect(tokens).toContain('--content-rail: 1120px');
   expect(tokens).toContain('--page-gutter: clamp(16px, 4vw, 40px)');
+});
+
+it('aligns browser chrome metadata with the approved atelier theme', () => {
+  const document = new DOMParser().parseFromString(indexHtml, 'text/html');
+  const themeColorMetas = [...document.querySelectorAll('meta[name="theme-color"]')];
+  const productionPaletteScope = [indexHtml, viteConfig, tokens, global, birthForm, results, chart]
+    .join('\n')
+    .toLowerCase();
+
+  expect(themeColorMetas).toHaveLength(1);
+  expect(themeColorMetas[0]?.getAttribute('content')).toBe('#11100E');
+  expect(viteConfig).toContain("theme_color: '#11100E'");
+  legacyPurples.forEach((color) => expect(productionPaletteScope).not.toContain(color));
 });
 
 function expectRule(css: string, selector: string, declarations: string[]) {
