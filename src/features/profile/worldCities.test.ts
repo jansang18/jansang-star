@@ -8,7 +8,7 @@ import {
 
 const records: WorldCityRecord[] = [
   ['1835848', 'Seoul', 'Seoul', ['서울', 'Sŏul'], 'KR', 37.566, 126.9784, 'Asia/Seoul', 10349312],
-  ['2643743', 'London', 'London', ['Londres', '런던'], 'GB', 51.50853, -0.12574, 'Europe/London', 8961989],
+  ['2643743', 'London', 'London', ['Londres'], 'GB', 51.50853, -0.12574, 'Europe/London', 8961989],
   ['5128581', 'New York City', 'New York City', ['New York', '뉴욕'], 'US', 40.71427, -74.00597, 'America/New_York', 8804190],
   ['2988507', 'Paris', 'Paris', ['파리'], 'FR', 48.85341, 2.3488, 'Europe/Paris', 2138551],
   ['2147714', 'Sydney', 'Sydney', ['시드니'], 'AU', -33.86785, 151.20732, 'Australia/Sydney', 5231147],

@@ -38,11 +38,15 @@ const displayCountry = (countryCode: string, locale: Locale) => {
   }
 };
 
+const curatedCityFor = (record: WorldCityRecord) => {
+  const recordNames = [record[1], record[2], ...record[3]].map(normalize);
+  return CITIES.find((city) => city.timeZone === record[7] && recordNames.includes(normalize(city.nameEn)));
+};
+
 const toCity = (record: WorldCityRecord): City => {
   const [id, name, asciiName, aliases, countryCode, latitude, longitude, timeZone, population] = record;
   const koreanAlias = aliases.find((alias) => /\p{Script=Hangul}/u.test(alias));
-  const recordNames = [name, asciiName, ...aliases].map(normalize);
-  const curated = CITIES.find((city) => city.timeZone === timeZone && recordNames.includes(normalize(city.nameEn)));
+  const curated = curatedCityFor(record);
   if (curated) return { ...curated, countryCode, population };
   return {
     id: `geonames-${id}`,
@@ -112,6 +116,7 @@ export function featuredWorldCities(records: readonly WorldCityRecord[], _locale
 
 const matchRank = (record: WorldCityRecord, query: string): number | undefined => {
   const countryCode = record[4];
+  const curated = curatedCityFor(record);
   const fields = [
     record[1],
     record[2],
@@ -120,6 +125,8 @@ const matchRank = (record: WorldCityRecord, query: string): number | undefined =
     displayCountry(countryCode, 'ko'),
     displayCountry(countryCode, 'en'),
     record[7],
+    curated?.nameKo ?? '',
+    curated?.nameEn ?? '',
   ].map(normalize);
   if (fields.some((field) => field === query)) return 0;
   if (fields.some((field) => field.startsWith(query))) return 1;
