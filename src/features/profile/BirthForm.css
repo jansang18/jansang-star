@@ -65,18 +65,18 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 48px;
+  min-height: 52px;
   padding: 0 14px;
   border: 1px solid var(--hairline);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--paper-elevated);
+  transition: background-color 140ms ease-out, border-color 140ms ease-out, box-shadow 140ms ease-out;
 }
 
 .input-wrap:focus-within {
-  border-color: var(--brass);
-  outline: 2px solid var(--ink-inverse);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 2px var(--obsidian);
+  border-color: var(--input-focus-border);
+  background: var(--input-focus-bg);
+  box-shadow: 0 0 0 3px var(--input-focus-ring), inset 0 1px rgba(255, 255, 255, .58);
 }
 
 .input-wrap > span {
@@ -85,24 +85,34 @@
 
 .field input {
   width: 100%;
-  min-height: 46px;
+  min-height: 52px;
   padding: 0 13px;
   border: 1px solid var(--hairline);
-  border-radius: 10px;
+  border-radius: 14px;
   color: var(--ink);
   background: var(--paper-elevated);
+  transition: background-color 140ms ease-out, border-color 140ms ease-out, box-shadow 140ms ease-out;
 }
 
 .input-wrap input {
-  min-height: 44px;
+  min-height: 50px;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
+  transition: none;
 }
 
 .input-wrap input:focus-visible {
   outline: 0;
+  box-shadow: none;
+}
+
+.field > input:focus-visible {
+  border-color: var(--input-focus-border);
+  outline: 0;
+  background: var(--input-focus-bg);
+  box-shadow: 0 0 0 3px var(--input-focus-ring), inset 0 1px rgba(255, 255, 255, .58);
 }
 
 .field input::placeholder {
@@ -282,6 +292,13 @@
   .city-options {
     background: var(--paper-elevated);
     backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-wrap,
+  .field input {
+    transition: none;
   }
 }
 

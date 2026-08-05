@@ -12,6 +12,9 @@
   --copper: #9C5544;
   --hairline: rgba(36, 33, 29, .16);
   --hairline-inverse: rgba(244, 240, 232, .18);
+  --input-focus-bg: #E7EEF0;
+  --input-focus-border: #64777E;
+  --input-focus-ring: rgba(100, 119, 126, .24);
   --content-rail: 1120px;
   --page-gutter: clamp(16px, 4vw, 40px);
   --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;

@@ -105,10 +105,23 @@ it('uses dual-color focus indicators on light and dark surfaces and fully opaque
   expect(focusRule?.[2]).toContain('outline: 2px solid var(--ink-inverse)');
   expect(focusRule?.[2]).toContain('outline-offset: 3px');
   expect(focusRule?.[2]).toContain('box-shadow: 0 0 0 2px var(--obsidian)');
+  expectRule(birthForm, '.input-wrap', [
+    'align-items: center',
+    'min-height: 52px',
+    'border-radius: 14px',
+  ]);
   expectRule(birthForm, '.input-wrap:focus-within', [
-    'outline: 2px solid var(--ink-inverse)',
-    'outline-offset: 3px',
-    'box-shadow: 0 0 0 2px var(--obsidian)',
+    'border-color: var(--input-focus-border)',
+    'background: var(--input-focus-bg)',
+    'box-shadow: 0 0 0 3px var(--input-focus-ring)',
+  ]);
+  const inputFocusRule = birthForm.match(/\.input-wrap:focus-within\s*\{([^}]*)\}/s)?.[1] ?? '';
+  expect(inputFocusRule).not.toContain('var(--obsidian)');
+  expectRule(birthForm, '.input-wrap input:focus-visible', ['outline: 0', 'box-shadow: none']);
+  expectRule(birthForm, '.field > input:focus-visible', [
+    'border-color: var(--input-focus-border)',
+    'background: var(--input-focus-bg)',
+    'box-shadow: 0 0 0 3px var(--input-focus-ring)',
   ]);
   expectRule(birthForm, '.field input::placeholder', ['color: var(--muted)', 'opacity: 1']);
 
@@ -117,6 +130,7 @@ it('uses dual-color focus indicators on light and dark surfaces and fully opaque
   expect(contrastRatio(tokenColor('obsidian'), tokenColor('paper'))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(tokenColor('ink-inverse'), tokenColor('obsidian'))).toBeGreaterThanOrEqual(4.5);
   expect(contrastRatio(tokenColor('muted'), tokenColor('paper-elevated'))).toBeGreaterThanOrEqual(4.5);
+  expect(contrastRatio(tokenColor('input-focus-border'), tokenColor('input-focus-bg'))).toBeGreaterThanOrEqual(3);
 });
 
 it('preserves the dual focus ring in the computed cascade for every shadowed interactive control', () => {
