@@ -9,17 +9,23 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest",
     "cities:build": "node scripts/build-world-cities.mjs",
+    "build:android:web": "npm run build",
+    "cap:sync:android": "npm run build:android:web && cap sync android",
+    "apk:debug": "npm run cap:sync:android && cd android && gradlew.bat assembleDebug",
     "preview": "vite preview --mode pages",
     "predeploy:pages": "npm run build -- --mode pages",
     "deploy:pages": "gh-pages --nojekyll -d dist -b gh-pages -r https://github.com/jansang18/jansang-star.git"
   },
   "dependencies": {
+    "@capacitor/android": "8.5.0",
+    "@capacitor/core": "8.5.0",
     "@js-temporal/polyfill": "0.5.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "swisseph-wasm": "0.1.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.0",
     "@testing-library/jest-dom": "7.0.0",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.3",
