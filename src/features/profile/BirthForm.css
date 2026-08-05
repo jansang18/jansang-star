@@ -74,8 +74,9 @@
 
 .input-wrap:focus-within {
   border-color: var(--brass);
-  outline: 2px solid var(--brass);
+  outline: 2px solid var(--ink-inverse);
   outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--obsidian);
 }
 
 .input-wrap > span {
@@ -106,7 +107,7 @@
 
 .field input::placeholder {
   color: var(--muted);
-  opacity: .82;
+  opacity: 1;
 }
 
 .field-error {

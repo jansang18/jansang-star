@@ -44,6 +44,49 @@ function expectRule(css: string, selector: string, declarations: string[]) {
   );
 }
 
+function tokenColor(name: string): string {
+  const match = tokens.match(new RegExp(`--${name}:\\s*(#[0-9a-f]{6})`, 'i'));
+  expect(match, `missing hex token --${name}`).not.toBeNull();
+  return match?.[1] ?? '#000000';
+}
+
+function relativeLuminance(hex: string): number {
+  const channels = hex.slice(1).match(/.{2}/g)?.map((pair) => Number.parseInt(pair, 16) / 255) ?? [];
+  const linear = channels.map((channel) => channel <= 0.04045
+    ? channel / 12.92
+    : ((channel + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+}
+
+function contrastRatio(first: string, second: string): number {
+  const luminances = [relativeLuminance(first), relativeLuminance(second)].sort((left, right) => right - left);
+  return (luminances[0] + 0.05) / (luminances[1] + 0.05);
+}
+
+it('uses dual-color focus indicators on light and dark surfaces and fully opaque accessible placeholders', () => {
+  const focusRule = global.match(/:where\(([^)]*)\):focus-visible\s*\{([^}]*)\}/s);
+  expect(focusRule, 'missing shared focus-visible rule').not.toBeNull();
+  expect(focusRule?.[1]).toContain('a');
+  expect(focusRule?.[1]).toContain('button');
+  expect(focusRule?.[1]).toContain('input');
+  expect(focusRule?.[1]).toContain('summary');
+  expect(focusRule?.[2]).toContain('outline: 2px solid var(--ink-inverse)');
+  expect(focusRule?.[2]).toContain('outline-offset: 3px');
+  expect(focusRule?.[2]).toContain('box-shadow: 0 0 0 2px var(--obsidian)');
+  expectRule(birthForm, '.input-wrap:focus-within', [
+    'outline: 2px solid var(--ink-inverse)',
+    'outline-offset: 3px',
+    'box-shadow: 0 0 0 2px var(--obsidian)',
+  ]);
+  expectRule(birthForm, '.field input::placeholder', ['color: var(--muted)', 'opacity: 1']);
+
+  const css = [global, birthForm, results, chart].join('\n');
+  expect(css).not.toMatch(/outline:\s*2px solid var\(--brass\)/);
+  expect(contrastRatio(tokenColor('obsidian'), tokenColor('paper'))).toBeGreaterThanOrEqual(4.5);
+  expect(contrastRatio(tokenColor('ink-inverse'), tokenColor('obsidian'))).toBeGreaterThanOrEqual(4.5);
+  expect(contrastRatio(tokenColor('muted'), tokenColor('paper-elevated'))).toBeGreaterThanOrEqual(4.5);
+});
+
 it('guards accessible contrast, metadata sizing, copy rhythm, wrapping, and press feedback', () => {
   expect(chart).toContain('.aspect-underlay');
   expect(chart).toContain('stroke: var(--ink-inverse)');

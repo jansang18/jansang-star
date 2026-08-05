@@ -44,8 +44,14 @@ function placementEvidence(
   };
 }
 
+function hasAvailableHouses(chart: NatalChartData): boolean {
+  return chart.timeKnown
+    && chart.houses.length === 12
+    && chart.houses.every((cusp) => Number.isFinite(cusp));
+}
+
 function placementHouse(chart: NatalChartData, placement: PlanetPosition): number | undefined {
-  return chart.timeKnown ? placement.house : undefined;
+  return hasAvailableHouses(chart) ? placement.house : undefined;
 }
 
 function buildBigThreePlacement(chart: NatalChartData, point: 'sun' | 'moon'): ReadingBlock {
@@ -79,11 +85,11 @@ function buildAscendant(chart: NatalChartData): ReadingBlock | undefined {
 
   const point = 'ascendant' as const;
   const signIndex = longitudeToZodiac(chart.ascendant).signIndex;
-  const house = 1;
+  const house = hasAvailableHouses(chart) ? 1 : undefined;
   const params: ReadingParams = {
     point,
     ...zodiacFacts(signIndex),
-    house,
+    ...(house === undefined ? {} : { house }),
     retrograde: false,
   };
 
@@ -95,7 +101,7 @@ function buildAscendant(chart: NatalChartData): ReadingBlock | undefined {
     sentences: sentences([
       'bigThree.role',
       'bigThree.sign',
-      'bigThree.house',
+      house === undefined ? 'bigThree.houseUnknown' : 'bigThree.house',
       'bigThree.pattern',
       'bigThree.action',
     ], params),
@@ -200,7 +206,7 @@ function buildAspectBlock(evidence: AspectEvidence): ReadingBlock {
 
 export function buildDetailedReading(chart: NatalChartData, transits: TransitData): DetailedReadingModel {
   const ascendant = buildAscendant(chart);
-  const hasHouses = chart.timeKnown && chart.houses.length > 0;
+  const hasHouses = hasAvailableHouses(chart);
   const unavailable: DetailedReadingModel['unavailable'] = [];
   if (!ascendant) unavailable.push('ascendant');
   if (!hasHouses) unavailable.push('houses');

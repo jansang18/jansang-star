@@ -29,9 +29,10 @@ summary,
   -webkit-tap-highlight-color: transparent;
 }
 
-:where(button, input, select, summary, [role='button']):focus-visible {
-  outline: 2px solid var(--brass);
+:where(a, button, input, select, summary, [role='button'], [role='tab'], [tabindex]):focus-visible {
+  outline: 2px solid var(--ink-inverse);
   outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--obsidian);
 }
 
 :where(button, summary, select, input:not([type]), input[type='text'], input[type='date'], input[type='time'], input[type='number'], input[type='search'], input[type='checkbox'], input[role='combobox'], [role='option']) {

@@ -122,17 +122,19 @@ describe('ResultsPage', () => {
     const page = within(container);
 
     await user.click(page.getByRole('tab', { name: '이번 달' }));
-    const koreanBigThree = page.getByTestId('reading-section-bigThree');
-    await user.click(within(koreanBigThree).getByRole('button', { name: /태양/ }));
+    const koreanPlanets = page.getByTestId('reading-section-planets');
+    await user.click(within(koreanPlanets).getByRole('button', { name: '수성' }));
     await user.click(page.getByRole('button', { name: 'English' }));
 
     expect(page.getByRole('tab', { name: 'This month' })).toHaveAttribute('aria-selected', 'true');
     const englishBigThree = page.getByTestId('reading-section-bigThree');
     expect(within(englishBigThree).getByRole('button', { name: /Sun/ })).toHaveAttribute('aria-expanded', 'true');
+    const englishPlanets = page.getByTestId('reading-section-planets');
+    expect(within(englishPlanets).getByRole('button', { name: 'Mercury' })).toHaveAttribute('aria-expanded', 'true');
     expect(page.getByText('김별')).toBeInTheDocument();
   });
 
-  it('operates period tabs and reading chapters from the keyboard with current ARIA state', async () => {
+  it('implements roving period tabs with wrapped arrow, Home, End, and matching panel relationships', async () => {
     const user = userEvent.setup();
     const { container } = renderWithI18n(<ResultsPage
       profile={profile}
@@ -145,27 +147,61 @@ describe('ResultsPage', () => {
       onEdit={() => {}}
     />);
     const page = within(container);
+    const tablist = page.getByRole('tablist', { name: '운세 기간' });
+    const todayTab = within(tablist).getByRole('tab', { name: '오늘' });
     const monthTab = page.getByRole('tab', { name: '이번 달' });
+    const yearTab = page.getByRole('tab', { name: '올해' });
 
-    for (let step = 0; step < 6; step += 1) await user.tab();
-    expect(monthTab).toHaveFocus();
-    await user.keyboard('{Enter}');
-    expect(monthTab).toHaveAttribute('aria-selected', 'true');
-    expect(page.getByRole('tab', { name: '오늘' })).toHaveAttribute('aria-selected', 'false');
+    expect(todayTab).toHaveAttribute('id', 'period-tab-today');
+    expect(todayTab).toHaveAttribute('aria-controls', 'period-panel-today');
+    expect(todayTab).toHaveAttribute('tabindex', '0');
+    expect(monthTab).toHaveAttribute('tabindex', '-1');
+    expect(yearTab).toHaveAttribute('tabindex', '-1');
+    const initialPanel = page.getByRole('tabpanel');
+    expect(initialPanel).toHaveAttribute('id', 'period-panel-today');
+    expect(initialPanel).toHaveAttribute('aria-labelledby', 'period-tab-today');
 
-    await user.tab({ shift: true });
-    const todayTab = page.getByRole('tab', { name: '오늘' });
+    todayTab.focus();
+    await user.keyboard('{ArrowLeft}');
+    expect(yearTab).toHaveFocus();
+    expect(yearTab).toHaveAttribute('aria-selected', 'true');
+    expect(yearTab).toHaveAttribute('tabindex', '0');
+    expect(page.getByRole('tabpanel')).toHaveAttribute('id', 'period-panel-year');
+    expect(page.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', 'period-tab-year');
+
+    await user.keyboard('{ArrowRight}');
     expect(todayTab).toHaveFocus();
-    await user.keyboard(' ');
     expect(todayTab).toHaveAttribute('aria-selected', 'true');
-    await user.tab();
-    await user.tab();
-    await user.tab();
+    await user.keyboard('{End}');
+    expect(yearTab).toHaveFocus();
+    expect(yearTab).toHaveAttribute('aria-selected', 'true');
+    await user.keyboard('{Home}');
+    expect(todayTab).toHaveFocus();
+    expect(todayTab).toHaveAttribute('aria-selected', 'true');
+    await user.keyboard('{ArrowRight}');
+    expect(monthTab).toHaveFocus();
+    expect(monthTab).toHaveAttribute('aria-selected', 'true');
+    expect(page.getByRole('tabpanel')).toHaveAttribute('id', 'period-panel-month');
+  });
+
+  it('toggles a default-open Big Three chapter from the keyboard', async () => {
+    const user = userEvent.setup();
+    const { container } = renderWithI18n(<ResultsPage
+      profile={profile}
+      chart={chart}
+      transits={transits}
+      fortune={fortune}
+      monthFortune={monthFortune}
+      yearFortune={yearFortune}
+      detailedReading={detailedReading}
+      onEdit={() => {}}
+    />);
+    const page = within(container);
     const firstChapter = within(page.getByTestId('reading-section-bigThree')).getByRole('button', { name: '태양' });
-    expect(firstChapter).toHaveFocus();
-    expect(firstChapter).toHaveAttribute('aria-expanded', 'false');
-    await user.keyboard(' ');
     expect(firstChapter).toHaveAttribute('aria-expanded', 'true');
+    firstChapter.focus();
+    await user.keyboard(' ');
+    expect(firstChapter).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('labels the chart SVG and its alternative table with a caption and column headers', () => {

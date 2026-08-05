@@ -100,4 +100,23 @@ describe('PeriodFlowChart', () => {
       points.map((point) => point.label),
     );
   });
+
+  it('keeps a rendered zero score in a separate band from its tick label', () => {
+    const boundaryPoints = [
+      { date: '2026-01-01', label: 'Low', tickLabel: 'Low', score: 0, tone: 'care' as const },
+      { date: '2026-01-31', label: 'High', tickLabel: 'High', score: 100, tone: 'flow' as const },
+    ];
+    const { container } = render(<PeriodFlowChart points={boundaryPoints} label="Boundary flow" />);
+    const low = container.querySelector('.period-node.softest');
+    const high = container.querySelector('.period-node.strongest');
+    const scoreY = Number(low?.querySelector('.period-node-score')?.getAttribute('y'));
+    const tickY = Number(low?.querySelector('.period-node-label')?.getAttribute('y'));
+
+    expect(low).toHaveClass('care');
+    expect(high).toHaveClass('flow');
+    expect(tickY - scoreY).toBeGreaterThanOrEqual(24);
+    expect(container.querySelector('.period-line')).toHaveAttribute('stroke-width', '3');
+    expect(container.querySelector('.period-area')).toHaveAttribute('fill-opacity', '0.08');
+    expect(screen.getByRole('img', { name: 'Boundary flow' })).toHaveAccessibleDescription('Low · 0; High · 100');
+  });
 });

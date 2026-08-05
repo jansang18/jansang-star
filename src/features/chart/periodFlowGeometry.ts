@@ -22,7 +22,10 @@ export function buildPeriodFlowGeometry(
   padding: number,
 ): PeriodFlowGeometry {
   const safePadding = clamp(padding, 0, Math.min(width / 2, height / 2));
-  const baselineY = rounded(height - safePadding);
+  const availableHeight = Math.max(0, height - safePadding * 2);
+  const scoreLabelBand = Math.min(28, availableHeight);
+  const plotHeight = availableHeight - scoreLabelBand;
+  const baselineY = rounded(safePadding + plotHeight);
   const normalizedScores = scores.map((score) => clamp(score, 0, 100));
   const flat = normalizedScores.length < 2 || normalizedScores.every((score) => score === normalizedScores[0]);
   const domain = flat || normalizedScores.length === 0
@@ -37,7 +40,6 @@ export function buildPeriodFlowGeometry(
   }
 
   const plotWidth = width - safePadding * 2;
-  const plotHeight = height - safePadding * 2;
   const points = scores.map((score, index) => {
     const plottedScore = clamp(score, domain.min, domain.max);
     const ratio = (plottedScore - domain.min) / (domain.max - domain.min);

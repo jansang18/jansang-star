@@ -15,4 +15,20 @@ describe('astrologyTerms', () => {
     expect(houseName(1, 'en')).toBe('Self & approach');
     expect(categoryName('career', 'en')).toBe('Career');
   });
+
+  it('uses the canonical Korean names for all five western aspects', () => {
+    expect({
+      conjunction: aspectName('conjunction', 'ko'),
+      sextile: aspectName('sextile', 'ko'),
+      trine: aspectName('trine', 'ko'),
+      square: aspectName('square', 'ko'),
+      opposition: aspectName('opposition', 'ko'),
+    }).toEqual({
+      conjunction: '합',
+      sextile: '육분',
+      trine: '삼분',
+      square: '사각',
+      opposition: '충',
+    });
+  });
 });

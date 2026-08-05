@@ -8,6 +8,26 @@ describe('formatters', () => {
     expect(formatZodiacDegree(132.5, 'en')).toBe('Leo 12°30′');
   });
 
+  it('chooses the sign from exact normalized longitude and truncates within-sign minutes at boundaries', () => {
+    expect([
+      formatZodiacDegree(29.999, 'en'),
+      formatZodiacDegree(30, 'en'),
+      formatZodiacDegree(359.999, 'en'),
+      formatZodiacDegree(360, 'en'),
+      formatZodiacDegree(-0.001, 'en'),
+      formatZodiacDegree(-360, 'en'),
+    ]).toEqual([
+      'Aries 29°59′',
+      'Taurus 0°00′',
+      'Pisces 29°59′',
+      'Aries 0°00′',
+      'Pisces 29°59′',
+      'Aries 0°00′',
+    ]);
+    expect(formatZodiacDegree(29.999, 'ko')).toBe('양자리 29°59′');
+    expect(formatZodiacDegree(359.999, 'ko')).toBe('물고기자리 29°59′');
+  });
+
   it('routes degrees, padded minutes, and house numbers through locale number formatting', () => {
     const nativeNumberFormat = Intl.NumberFormat;
     const numberFormat = vi.spyOn(Intl, 'NumberFormat').mockImplementation(function (...args: ConstructorParameters<typeof Intl.NumberFormat>) {

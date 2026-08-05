@@ -11,14 +11,28 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
-export function I18nProvider({ children, initialLocale }: PropsWithChildren<{ initialLocale?: Locale }>) {
-  const [locale, setLocale] = useState<Locale>(() => initialLocale ?? detectLocale({
-    stored: localStorage.getItem(LANGUAGE_STORAGE_KEY),
+function detectInitialLocale(): Locale {
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  } catch {
+    // Storage may be disabled; browser-language detection remains available.
+  }
+  return detectLocale({
+    stored,
     languages: [...navigator.languages, navigator.language],
-  }));
+  });
+}
+
+export function I18nProvider({ children, initialLocale }: PropsWithChildren<{ initialLocale?: Locale }>) {
+  const [locale, setLocale] = useState<Locale>(() => initialLocale ?? detectInitialLocale());
 
   useEffect(() => {
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, locale);
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, locale);
+    } catch {
+      // Keep the in-memory locale usable when persistence is unavailable.
+    }
     document.documentElement.lang = locale;
   }, [locale]);
 

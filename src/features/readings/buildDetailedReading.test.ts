@@ -180,6 +180,21 @@ describe('buildDetailedReading', () => {
     expect(report.unavailable).toEqual(['ascendant', 'houses']);
   });
 
+  it('treats houses as unavailable unless there are exactly twelve finite cusps', () => {
+    const elevenCusps = buildDetailedReading({ ...chart, houses: chart.houses.slice(0, 11) }, transits);
+    expect(elevenCusps.houses).toHaveLength(0);
+    expect(elevenCusps.unavailable).toContain('houses');
+    expect(elevenCusps.bigThree.every((block) => block.sentences[2].key === 'bigThree.houseUnknown')).toBe(true);
+    expect(elevenCusps.planets.every((block) => block.sentences[2].key === 'planet.houseUnknown')).toBe(true);
+
+    const nonFiniteCusps = buildDetailedReading({
+      ...chart,
+      houses: chart.houses.map((cusp, index) => index === 5 ? Number.NaN : cusp),
+    }, transits);
+    expect(nonFiniteCusps.houses).toHaveLength(0);
+    expect(nonFiniteCusps.unavailable).toContain('houses');
+  });
+
   it('ranks aspects by rounded exactness, uses the canonical tie-break, and never pads missing transits', () => {
     const report = buildDetailedReading(chart, transits);
 

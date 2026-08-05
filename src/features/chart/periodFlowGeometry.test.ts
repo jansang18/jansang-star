@@ -17,17 +17,20 @@ describe('buildPeriodFlowGeometry', () => {
     const geometry = buildPeriodFlowGeometry([70, 70, 70], 760, 260, 36);
 
     expect(geometry.domain).toEqual({ min: 40, max: 100 });
-    expect(geometry.points.map((point) => point.y)).toEqual([130, 130, 130]);
+    expect(geometry.points.map((point) => point.y)).toEqual([116, 116, 116]);
   });
 
-  it('keeps boundary and single-point data inside the padded plot', () => {
+  it('keeps boundary and single-point data inside the plot while reserving separate score and tick bands', () => {
     const boundary = buildPeriodFlowGeometry([0, 100], 760, 260, 36);
     const single = buildPeriodFlowGeometry([50], 760, 260, 36);
 
     expect(boundary.points).toEqual([
-      { x: 36, y: 224, score: 0 },
+      { x: 36, y: 196, score: 0 },
       { x: 724, y: 36, score: 100 },
     ]);
+    const scoreTextBaseline = boundary.points[0].y + 26;
+    const tickTextBaseline = 260 - 8;
+    expect(tickTextBaseline - scoreTextBaseline).toBeGreaterThanOrEqual(24);
     expect(single.points[0].x).toBe(380);
     expect(single.points[0].y).toBeGreaterThanOrEqual(36);
     expect(single.points[0].y).toBeLessThanOrEqual(224);
@@ -39,7 +42,7 @@ describe('buildPeriodFlowGeometry', () => {
       points: [],
       linePath: '',
       areaPath: '',
-      baselineY: 224,
+      baselineY: 196,
       domain: { min: 40, max: 100 },
     });
   });

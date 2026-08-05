@@ -142,6 +142,7 @@ describe('Pages preview workflow', () => {
 
       const emittedFiles = await listFiles(outputRoot);
       expect(emittedFiles).toEqual(expect.arrayContaining([
+        '.nojekyll',
         'index.html',
         'manifest.webmanifest',
         'registerSW.js',
@@ -149,8 +150,11 @@ describe('Pages preview workflow', () => {
         'wasm/swisseph.data',
         'wasm/swisseph.wasm',
       ]));
+      const underscoreChunk = emittedFiles.find((relativePath) =>
+        relativePath.split('/').at(-1)?.startsWith('_') && relativePath.endsWith('.js'));
+      expect(underscoreChunk, 'Vite underscore-prefixed runtime chunk').toBeDefined();
 
-      for (const relativePath of emittedFiles) {
+      for (const relativePath of emittedFiles.filter((path) => path !== '.nojekyll')) {
         const encodedPath = relativePath.split('/').map(encodeURIComponent).join('/');
         const response = await fetch(`${origin}/jansang-star/${encodedPath}`);
         expect(response.status, relativePath).toBe(200);

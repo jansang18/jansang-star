@@ -22,7 +22,7 @@ const TERMS: Record<Locale, {
     planets: { sun: '태양', moon: '달', mercury: '수성', venus: '금성', mars: '화성', jupiter: '목성', saturn: '토성', uranus: '천왕성', neptune: '해왕성', pluto: '명왕성' },
     points: { sun: '태양', moon: '달', ascendant: '상승궁' },
     zodiac: { 양자리: '양자리', 황소자리: '황소자리', 쌍둥이자리: '쌍둥이자리', 게자리: '게자리', 사자자리: '사자자리', 처녀자리: '처녀자리', 천칭자리: '천칭자리', 전갈자리: '전갈자리', 사수자리: '사수자리', 염소자리: '염소자리', 물병자리: '물병자리', 물고기자리: '물고기자리' },
-    aspects: { conjunction: '합', sextile: '육합', square: '사각', trine: '삼합', opposition: '대립' },
+    aspects: { conjunction: '합', sextile: '육분', square: '사각', trine: '삼분', opposition: '충' },
     houses: ['자아·첫인상', '재물·가치', '소통·학습', '가정·뿌리', '창조·연애', '일상·건강', '관계·파트너', '공유·변화', '신념·여행', '직업·명예', '친구·미래', '내면·회복'],
     categories: { overall: '종합운', love: '연애운', money: '재물운', career: '직업운', health: '건강운' },
     motion: { direct: '순행', retrograde: '역행' },

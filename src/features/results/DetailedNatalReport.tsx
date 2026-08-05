@@ -5,7 +5,9 @@ import { ReadingChapter } from './ReadingChapter';
 
 export function DetailedNatalReport({ report }: { report: LocalizedDetailedReading }) {
   const { t } = useI18n();
-  const [openBlockIds, setOpenBlockIds] = useState<Set<string>>(() => new Set());
+  const [openBlockIds, setOpenBlockIds] = useState<Set<string>>(() => new Set(
+    report.sections.find((section) => section.id === 'bigThree')?.blocks.map((block) => block.id) ?? [],
+  ));
 
   function toggle(blockId: string) {
     setOpenBlockIds((current) => {

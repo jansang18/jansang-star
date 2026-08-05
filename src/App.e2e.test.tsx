@@ -68,14 +68,16 @@ describe('full app flow', () => {
     const softestScore = container.querySelector('.period-node.softest .period-node-score')?.textContent;
     expect(strongestScore).toBe('100');
     expect(softestScore).toBe('82');
-    const bigThree = screen.getByTestId('reading-section-bigThree');
-    await user.click(within(bigThree).getByRole('button', { name: 'Sun' }));
+    const planetsSection = screen.getByTestId('reading-section-planets');
+    await user.click(within(planetsSection).getByRole('button', { name: 'Mercury' }));
 
     await user.click(screen.getByRole('button', { name: '한국어' }));
     expect(screen.getByRole('tab', { name: '이번 달' })).toHaveAttribute('aria-selected', 'true');
     expect(container.querySelector('.period-node.strongest .period-node-score')).toHaveTextContent(strongestScore ?? '');
     expect(container.querySelector('.period-node.softest .period-node-score')).toHaveTextContent(softestScore ?? '');
     expect(within(screen.getByTestId('reading-section-bigThree')).getByRole('button', { name: '태양' }))
+      .toHaveAttribute('aria-expanded', 'true');
+    expect(within(screen.getByTestId('reading-section-planets')).getByRole('button', { name: '수성' }))
       .toHaveAttribute('aria-expanded', 'true');
     const restoredKoreanResultProps = resultsPageRender.mock.calls.at(-1)?.[0];
     expect(restoredKoreanResultProps).toBeDefined();

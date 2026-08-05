@@ -29,6 +29,12 @@ npm run preview -- --host 127.0.0.1 --port 4173
 
 ## Deployment
 
-GitHub Pages에는 `npm run build -- --mode pages`로 생성한 `dist/`를 배포합니다. 공개 주소는 [https://jansang18.github.io/jansang-star/](https://jansang18.github.io/jansang-star/)이며 직접 접속과 새로고침 모두 `/jansang-star/` 경로를 사용합니다.
+GitHub Pages에는 아래 프로젝트 명령으로 배포합니다. `predeploy:pages`가 Pages 모드 빌드를 먼저 실행하고, 고정된 `gh-pages` 6.3.0의 `gh-pages --nojekyll -d dist -b gh-pages` 명령이 Jekyll 처리를 끈 상태로 결과물을 게시합니다.
+
+```powershell
+npm run deploy:pages
+```
+
+깨끗한 빌드에도 `public/.nojekyll`이 `dist/.nojekyll`로 복사되므로 Vite의 `__vite-*` 청크와 Swiss Ephemeris WASM/data 자산이 그대로 제공됩니다. 공개 주소는 [https://jansang18.github.io/jansang-star/](https://jansang18.github.io/jansang-star/)이며 직접 접속과 새로고침 모두 `/jansang-star/` 경로를 사용합니다.
 
 이 프로젝트는 `GPL-3.0-or-later`로 배포합니다. 천체 계산에는 `swisseph-wasm`과 Swiss Ephemeris를 사용합니다. 독점 또는 상업 서비스로 배포하기 전에는 [Astrodienst의 Swiss Ephemeris 라이선스](https://www.astro.com/swisseph/)와 데이터 재배포 조건을 별도로 검토해야 합니다.

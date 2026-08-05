@@ -81,6 +81,79 @@ describe('BirthForm', () => {
     expect(screen.getByRole('option', { name: /Seoul/ })).toBeInTheDocument();
   });
 
+  it('links the combobox to its active option and commits that option with ArrowDown and Enter', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    const city = screen.getByRole('combobox', { name: '출생지역' });
+
+    await user.click(city);
+    const listbox = screen.getByRole('listbox');
+    expect(city).toHaveAttribute('aria-controls', listbox.id);
+
+    await user.keyboard('{ArrowDown}');
+    const activeDescendant = city.getAttribute('aria-activedescendant');
+    expect(activeDescendant).toBeTruthy();
+    if (!activeDescendant) throw new Error('The active city option must have an ID');
+    const activeOption = document.getElementById(activeDescendant);
+    expect(activeOption).toHaveAttribute('role', 'option');
+    expect(activeOption).toHaveTextContent('서울');
+
+    await user.keyboard('{Enter}');
+    expect(city).toHaveValue('서울');
+    expect(city).toHaveAttribute('aria-expanded', 'false');
+    expect(city).not.toHaveAttribute('aria-activedescendant');
+  });
+
+  it('clears a stale committed city after query edits and submits only the newly chosen city facts', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderForm(onSubmit);
+    await user.type(screen.getByLabelText('이름 또는 별칭'), '민아');
+    await user.type(screen.getByLabelText('생년월일'), '19900805');
+    const city = screen.getByRole('combobox', { name: '출생지역' });
+
+    await user.type(city, '서울');
+    await user.click(screen.getByRole('option', { name: /서울/ }));
+    await user.clear(city);
+    await user.type(city, 'Tokyo');
+    await user.click(screen.getByRole('button', { name: '별자리 만세력 계산하기' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText('출생지역을 선택해 주세요.')).toBeInTheDocument();
+
+    await user.click(city);
+    await user.click(screen.getByRole('option', { name: /Tokyo/ }));
+    await user.click(screen.getByRole('button', { name: '별자리 만세력 계산하기' }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      cityId: 'tokyo',
+      latitude: 35.6762,
+      longitude: 139.6503,
+      timeZone: 'Asia/Tokyo',
+    }));
+  });
+
+  it('localizes an unchanged committed city without clearing its submitted facts', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<I18nProvider initialLocale="ko"><LocaleProbeButton /><BirthForm onSubmit={onSubmit} /></I18nProvider>);
+    await user.type(screen.getByLabelText('이름 또는 별칭'), '민아');
+    await user.type(screen.getByLabelText('생년월일'), '19900805');
+    const city = screen.getByRole('combobox', { name: '출생지역' });
+    await user.type(city, '서울');
+    await user.click(screen.getByRole('option', { name: /서울/ }));
+
+    await user.click(screen.getByRole('button', { name: 'English' }));
+    expect(screen.getByRole('combobox', { name: 'Birth city' })).toHaveValue('Seoul');
+    await user.click(screen.getByRole('button', { name: 'Calculate my natal chart' }));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      cityId: 'seoul',
+      latitude: 37.5665,
+      longitude: 126.978,
+      timeZone: 'Asia/Seoul',
+    }));
+  });
+
   it('preserves edited city search text while switching locale', async () => {
     const user = userEvent.setup();
     render(<I18nProvider initialLocale="ko"><LocaleProbeButton /><BirthForm onSubmit={() => {}} /></I18nProvider>);
